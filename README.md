@@ -121,13 +121,15 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 `notifications.config.json` is a required configuration file that defines settings for sending email notifications directly from the scripts.  See the table below for details.
 
+> If this file is missing, notifications will not be sent via email
+
 | Attribute | Description | Required? |
 | ------- | ----------- | ---------| 
 | smtp_url | Host/IP of the SMTP Server | Yes |
 | smtp_port | SMTP Port for Host | Yes |
 | smtp_sender_id | SMTP User Id | Yes |
 | smtp_sender_pass | SMTP Password | Yes |
-| smsEmail | Email to send notifications | No | 
+| smsEmail | Email to send notifications | Yes | 
 
 > If you are using Gmail to send, you need to set your account's `Allow Less Secure Apps` setting to `true`
 
@@ -137,8 +139,8 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 | Attribute | Description | Required? |
 | ------- | ----------- | ---------| 
-| apiKey | Host/IP of the SMTP Server | Yes |
-| pageId | SMTP Port for Host | Yes |
+| apiKey | API Key for statuspage.io | Yes |
+| pageId | Page ID for statuspage.io | Yes |
 
 ## Object Definitions
 

@@ -2,10 +2,16 @@ import sys
 import smtplib
 import json
 import logging
+from pathlib import Path
 
 from email.message import EmailMessage
 
 def notify(subject, content):
+
+    config_file = Path('notifications.config.json')
+
+    if (not config_file.exists()):
+        return
 
     f = open('notifications.config.json')
     configData = json.load(f)
