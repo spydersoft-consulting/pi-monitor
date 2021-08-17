@@ -7,7 +7,14 @@ class Incident:
     name = "Incident Name"
     description = "Incident Description"
 
+class IncidentResult:
+    incidentCreated = False
+    incidentResolved = False
 
+class StatusResult:
+    statusChanged = False
+    incidentResult = IncidentResult
+    
 class StatusPageOperator:
 
     component_status_list = ['operational', 'under_maintenance', 'degraded_performance', 'partial_outage', 'major_outage']
@@ -30,16 +37,19 @@ class StatusPageOperator:
         if (componentStatus not in self.component_status_list):
             raise ValueError(str.format("Invalid status '{0}'.  Valid values are {1}", componentStatus, self.component_status_list))
 
+        result = StatusResult
+
         componentUrl = str.format("https://api.statuspage.io/v1/pages/{0}/components/{1}", self.config['pageId'], componentId)
         logging.debug(str.format("Retrieving component from StatusPage: {0}", componentUrl))
         component = requests.get(componentUrl, headers=self.getHeaders())
         componentJson = component.json()
         if (componentJson['status'] != componentStatus):
+            result.statusChanged = True
             logging.debug(str.format("Changing status from {0} to {1}", componentJson['status'], componentStatus))
             self.updateComponentStatus(componentId, componentStatus)
-            self.checkAndLogIncident(componentId, componentJson['status'], componentStatus, incidentDetails)
+            result.incidentResult = self.checkAndLogIncident(componentId, componentJson['status'], componentStatus, incidentDetails)
 
-        return True
+        return result
 
     def updateComponentStatus(self, componentId, newComponentStatus):
         if (newComponentStatus not in self.component_status_list):
@@ -56,6 +66,8 @@ class StatusPageOperator:
         For now, if it's operational, close open incidents, and if it's not operational, create a new 
         ticket if one isn't already open for this component.  Future state will involve more detail around outage and maintenance
         '''
+        incidentResult = IncidentResult
+
         unresolvedIncidentsUrl = str.format("https://api.statuspage.io/v1/pages/{0}/incidents/unresolved", self.config['pageId'])
         unresolvedIncidentsResponse = requests.get(unresolvedIncidentsUrl, headers=self.getHeaders())
         result = unresolvedIncidentsResponse.json()
@@ -68,10 +80,14 @@ class StatusPageOperator:
                 for incident in associatedIncidents:
                     logging.debug(str.format("Closing incident {0}", incident['id']))
                     self.closeIncident(incident['id'])
+                    incidentResult.incidentResolved = True
                 
         elif (newComponentStatus == "major_outage"):
             if (asscIncidentCount == 0):
                 self.createIncident(componentId, newComponentStatus, incidentDetails)
+                incidentResult.incidentCreated = True
+        
+        return incidentResult
 
     def closeIncident(self, incidentId):
         incidentUrl = str.format("https://api.statuspage.io/v1/pages/{0}/incidents/{1}", self.config['pageId'], incidentId)
@@ -92,6 +108,3 @@ class StatusPageOperator:
             }
         }
         r = requests.post(incidentUrl, headers=self.getHeaders(), data=json.dumps(payload))
-
-        if (self.config['smsEmail'] != ''):
-            notifications.notify(self.config['smsEmail'], incidentDetails.name, incidentDetails.description)

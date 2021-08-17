@@ -1,5 +1,4 @@
 {
     "apiKey": "status_page_api_key",
-    "pageId": "status_page_page_id",
-    "smsEmail": "email@vtext.com"
+    "pageId": "status_page_page_id"
 }

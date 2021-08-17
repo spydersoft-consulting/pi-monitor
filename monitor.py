@@ -2,6 +2,7 @@ import json
 import logging
 import healthchecks
 import statuspage_io
+import notifications
 
 def main():
     
@@ -16,20 +17,30 @@ def main():
     for statusCheck in configData['statusChecks']:
         logging.info(str.format('Checking ', statusCheck['name'], '...'))
         statusResult = healthchecks.status_check(statusCheck['url'])
+        incident = statuspage_io.Incident()
+        newComponentStatus = "operational"
+
+        sendNotification = False
+        
         if (statusResult.success):
             # Good Check
             logging.info("Status OK")
-            if (statusCheck['statusPageComponentId'] != ''):
-                operator.checkAndUpdateComponentStatus(statusCheck['statusPageComponentId'], "operational")
+            newComponentStatus = "operational"
 
         else:
+            newComponentStatus = "major_outage"
             # Bad check
             logging.warning(statusResult.message)
-            if (statusCheck['statusPageComponentId'] != ''):
-                incident = statuspage_io.Incident()
-                incident.name = str.format("{0} is not responsive", statusCheck['name'])
-                incident.description = str.format("{0} is not responsive", statusCheck['name'])
-                operator.checkAndUpdateComponentStatus(statusCheck['statusPageComponentId'], "major_outage", incident)               
-        
+            incident.name = str.format("{0} is not responsive", statusCheck['name'])
+            incident.description = str.format("{0} is not responsive", statusCheck['name'])
+            sendNotification = True
+       
+
+        if (statusCheck['statusPageComponentId'] != ''):
+            statusIoResult = operator.checkAndUpdateComponentStatus(statusCheck['statusPageComponentId'], newComponentStatus, incident)   
+            sendNotification = statusIoResult.incidentResult.incidentCreated
+
+        if (sendNotification):              
+            notifications.notify(incident.name, incident.description) 
 
 main()
