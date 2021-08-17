@@ -1,0 +1,10 @@
+{
+    "statusChecks": [
+        {
+            "name": "Site (Prod)",
+            "url": "https://your.domain.com",
+            "statusPageComponentId": "123215125"
+        }
+    ]
+
+}
