@@ -1,4 +1,5 @@
 import json
+from types import SimpleNamespace
 import logging
 import requests
 
@@ -22,7 +23,7 @@ class StatusPageClient:
         componentUrl = str.format("https://api.statuspage.io/v1/pages/{0}/components/{1}", self.pageId, componentId)
         logger.info("Retrieving component from StatusPage: %s", componentUrl)
         component = requests.get(componentUrl, headers=self.getHeaders())
-        return component.json()
+        return component.json(object_hook=lambda d: SimpleNamespace(**d))
 
     def updateComponent(self, componentId: str, payload: any):
         componentUrl = str.format("https://api.statuspage.io/v1/pages/{0}/components/{1}", self.pageId, componentId)
@@ -31,17 +32,21 @@ class StatusPageClient:
         return r.json()
 
     def getUnresolvedIncidents(self):
+        logger.info("Retrieving unresolved incidents")
         unresolvedIncidentsUrl = str.format("https://api.statuspage.io/v1/pages/{0}/incidents/unresolved", self.pageId)
         unresolvedIncidentsResponse = requests.get(unresolvedIncidentsUrl, headers=self.getHeaders())
-        return unresolvedIncidentsResponse.json()
+        result = unresolvedIncidentsResponse.json(object_hook=lambda d: SimpleNamespace(**d))
+        return result
 
     def createIncident(self, payload: any):
         incidentUrl = str.format("https://api.statuspage.io/v1/pages/{0}/incidents", self.pageId)
         logger.info("Creating incident: %s", incidentUrl)
         r = requests.post(incidentUrl, headers=self.getHeaders(), data=json.dumps(payload))
+        logger.debug("Response: %s", r.json())
 
     def updateIncident(self, incidentId: str, payload: any):
         incidentUrl = str.format("https://api.statuspage.io/v1/pages/{0}/incidents/{1}", self.pageId, incidentId)
         logger.info("Closing incident %s: %s", incidentUrl, incidentId)
         r = requests.patch(incidentUrl, headers=self.getHeaders(), data=json.dumps(payload))
+        logger.debug("Response: %s", r.json())
 

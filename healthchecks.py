@@ -28,7 +28,7 @@ def execute_status_check(statusCheckDef):
     try:
         logger.info("Requesting %s", statusCheckDef.url)
         r = requests.get(statusCheckDef.url)
-        logger.debug("Result: %s", r.text)
+        #logger.debug("Result: %s", r.text)
         statusResult = StatusResult(r.status_code == 200)
         if (not statusResult.success):
             logger.info("Request failed with Response Code %d: %s", r.status_code, r.text)

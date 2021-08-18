@@ -48,4 +48,4 @@ loggers:
         propogate: yes
 
     statuspage_io_client:
-        propoage: yes
+        propogage: yes

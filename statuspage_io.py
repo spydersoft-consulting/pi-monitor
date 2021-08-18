@@ -23,6 +23,7 @@ class StatusResult:
     
     def __init__(self):
         self.incidentResult = IncidentResult()
+
 class StatusPageOperator:
 
     def __init__(self):
@@ -39,13 +40,13 @@ class StatusPageOperator:
             raise ValueError(str.format("Invalid status '{0}'.  Valid values are {1}", componentStatus, self.client.component_status_list))
 
         result = StatusResult()
-        componentJson = self.client.getComponent(componentId)
+        component = self.client.getComponent(componentId)
 
-        if (componentJson['status'] != componentStatus):
+        if (component.status != componentStatus):
             result.statusChanged = True
-            logger.info("Changing status from %s to %s", componentJson['status'], componentStatus)
+            logger.info("Changing status from %s to %s", component.status, componentStatus)
             self.updateComponentStatus(componentId, componentStatus)
-            result.incidentResult = self.checkAndLogIncident(componentId, componentJson['status'], componentStatus, incidentDetails)
+            result.incidentResult = self.checkAndLogIncident(componentId, component.status, componentStatus, incidentDetails)
 
         return result
 
@@ -57,23 +58,36 @@ class StatusPageOperator:
         payload = { "component": { "status": newComponentStatus } }
         self.client.updateComponent(componentId, payload)
 
+    def filter_set(self, incidents, componentId):
+        def iterator_func(incident):
+            for comp in incident.components:
+                if comp.id == componentId:
+                    return True
+            return False
+        
+        return filter(iterator_func, incidents)
+
 
     def checkAndLogIncident(self, componentId, oldComponentStatus, newComponentStatus, incidentDetails:Incident):
         '''
         For now, if it's operational, close open incidents, and if it's not operational, create a new 
         ticket if one isn't already open for this component.  Future state will involve more detail around outage and maintenance
         '''
-        incidentResult = IncidentResult
+        incidentResult = IncidentResult()
 
         result = self.client.getUnresolvedIncidents()
 
-        associatedIncidents = list(filter(lambda incident: incident['components'][0]['id'] == componentId, result))
+        logger.debug(result)
+
+        associatedIncidents = list(self.filter_set(result, componentId))
         asscIncidentCount = len(associatedIncidents)
+
+        logger.info("Associated Incidents for %s: %d", componentId, asscIncidentCount)
 
         if (newComponentStatus == "operational"):
             if (asscIncidentCount > 0):
                 for incident in associatedIncidents:
-                    self.closeIncident(incident['id'])
+                    self.closeIncident(incident.id)
                     incidentResult.incidentResolved = True
                 
         elif (newComponentStatus == "major_outage"):
