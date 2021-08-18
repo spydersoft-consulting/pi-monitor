@@ -1,4 +1,5 @@
 import json
+from types import SimpleNamespace
 import os
 import yaml
 import logging.config
@@ -41,7 +42,7 @@ logger = logging.getLogger(__name__)
 
 logger.info("Reading Configuration File")
 with open('monitor.config.json') as configFile:
-    configData = json.load(configFile)
+    configData = json.loads(configFile.read(), object_hook=lambda d: SimpleNamespace(**d))
 
 with ThreadPoolExecutor(max_workers=4) as executor:
-    tasks = { executor.submit(healthchecks.execute_status_check, statusCheck): statusCheck for statusCheck in configData['statusChecks'] }
+    tasks = { executor.submit(healthchecks.execute_status_check, statusCheck): statusCheck for statusCheck in configData.statusChecks }
