@@ -1,8 +1,8 @@
-import sys
 import requests
 import logging
 import statuspage_io
 import notifications
+from time import sleep
 
 logger = logging.getLogger(__name__)
 class StatusResult:
@@ -38,15 +38,15 @@ def execute_status_check(statusCheckDef):
         logger.error("Request failed exception %s", e)
         statusResult = StatusResult(False)
         statusResult.message = "Unknown status failure"
-    
+
     if (statusResult.success):
         # Good Check
         logger.info("Status OK")
         newComponentStatus = "operational"
 
     else:
-        newComponentStatus = "major_outage"
         # Bad check
+        newComponentStatus = "major_outage"
         logger.warning(statusResult.message)
         incident.name = statusCheckDef['name']
         incident.description = str.format("{0} is not responsive", statusCheckDef['name'])

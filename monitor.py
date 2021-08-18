@@ -6,8 +6,7 @@ import logging
 import logging.handlers
 import coloredlogs
 import healthchecks
-import statuspage_io
-import notifications
+from concurrent.futures import ThreadPoolExecutor
 
 
 def setup_logging(default_path='logging.yaml', default_level=logging.INFO, env_key='LOG_CFG'):
@@ -44,5 +43,5 @@ logger.info("Reading Configuration File")
 with open('monitor.config.json') as configFile:
     configData = json.load(configFile)
 
-for statusCheck in configData['statusChecks']:
-    healthchecks.execute_status_check(statusCheck)
+with ThreadPoolExecutor(max_workers=4) as executor:
+    tasks = { executor.submit(healthchecks.execute_status_check, statusCheck): statusCheck for statusCheck in configData['statusChecks'] }

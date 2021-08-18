@@ -78,8 +78,13 @@ To get a local copy up and running follow these simple steps.
 ### Prerequisites
 
 * [Python](https://www.python.org/)
+* [PyYaml]()
+* [ColoredLogs]()
 
-These scripts were written and tested on Python 3.7.3 (Raspbian) and 3.9.1 (Windows).
+These scripts were written and tested on Python 3.7.3 (Raspbian) and 3.9.1 (Windows).  Install the dependencies as follows:
+```sh
+pip3 install pyyaml coloredlogs
+```
 
 ### Installation
 
