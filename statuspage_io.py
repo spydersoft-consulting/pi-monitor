@@ -1,7 +1,7 @@
 import json
 from types import SimpleNamespace
 import logging
-import requests
+import statuspage_io_client
 
 logger = logging.getLogger(__name__)
 
@@ -25,31 +25,22 @@ class StatusResult:
         self.incidentResult = IncidentResult()
 class StatusPageOperator:
 
-    component_status_list = ['operational', 'under_maintenance', 'degraded_performance', 'partial_outage', 'major_outage']
-    incident_status_list = ['investigating', 'identified', 'monitoring', 'resolved']
-    scheduled_incident_status_list = ['scheduled', 'in_progress', 'verifying', 'complete']
-
     def __init__(self):
         self.config = self.getConfig()
+        self.client = statuspage_io_client.StatusPageClient(self.config.apiKey, self.config.pageId)
 
     def getConfig(self):
         with open('statuspage_io.config.json') as f:
             configData = json.loads(f.read(), object_hook=lambda d: SimpleNamespace(**d))
         return configData
 
-    def getHeaders(self):
-        return {'Authorization': str.format('OAuth {0}', self.config.apiKey), 'Content-Type': 'application/json'}
-
     def checkAndUpdateComponentStatus(self, componentId, componentStatus, incidentDetails: Incident=Incident()):
-        if (componentStatus not in self.component_status_list):
-            raise ValueError(str.format("Invalid status '{0}'.  Valid values are {1}", componentStatus, self.component_status_list))
+        if (componentStatus not in self.client.component_status_list):
+            raise ValueError(str.format("Invalid status '{0}'.  Valid values are {1}", componentStatus, self.client.component_status_list))
 
         result = StatusResult()
-        
-        componentUrl = str.format("https://api.statuspage.io/v1/pages/{0}/components/{1}", self.config.pageId, componentId)
-        logger.info("Retrieving component from StatusPage: %s", componentUrl)
-        component = requests.get(componentUrl, headers=self.getHeaders())
-        componentJson = component.json()
+        componentJson = self.client.getComponent(componentId)
+
         if (componentJson['status'] != componentStatus):
             result.statusChanged = True
             logger.info("Changing status from %s to %s", componentJson['status'], componentStatus)
@@ -59,13 +50,12 @@ class StatusPageOperator:
         return result
 
     def updateComponentStatus(self, componentId, newComponentStatus):
-        if (newComponentStatus not in self.component_status_list):
-            raise ValueError(str.format("Invalid status '{0}'.  Valid values are {1}", newComponentStatus, self.component_status_list))
+        if (newComponentStatus not in self.client.component_status_list):
+            raise ValueError(str.format("Invalid status '{0}'.  Valid values are {1}", newComponentStatus, self.client.component_status_list))
 
-        componentUrl = str.format("https://api.statuspage.io/v1/pages/{0}/components/{1}", self.config.pageId, componentId)
-        logger.debug("Setting component status to %s: %s", componentUrl, newComponentStatus)
+        logger.debug("Setting component status to %s: %s", newComponentStatus, componentId)
         payload = { "component": { "status": newComponentStatus } }
-        r = requests.put(componentUrl, headers=self.getHeaders(), data=json.dumps(payload))
+        self.client.updateComponent(componentId, payload)
 
 
     def checkAndLogIncident(self, componentId, oldComponentStatus, newComponentStatus, incidentDetails:Incident):
@@ -75,9 +65,7 @@ class StatusPageOperator:
         '''
         incidentResult = IncidentResult
 
-        unresolvedIncidentsUrl = str.format("https://api.statuspage.io/v1/pages/{0}/incidents/unresolved", self.config.pageId)
-        unresolvedIncidentsResponse = requests.get(unresolvedIncidentsUrl, headers=self.getHeaders())
-        result = unresolvedIncidentsResponse.json()
+        result = self.client.getUnresolvedIncidents()
 
         associatedIncidents = list(filter(lambda incident: incident['components'][0]['id'] == componentId, result))
         asscIncidentCount = len(associatedIncidents)
@@ -96,14 +84,12 @@ class StatusPageOperator:
         return incidentResult
 
     def closeIncident(self, incidentId):
-        incidentUrl = str.format("https://api.statuspage.io/v1/pages/{0}/incidents/{1}", self.config.pageId, incidentId)
-        logger.info("Closing incident %s: %s", incidentUrl, incidentId)
+        logger.info("Closing incident %s", incidentId)
         payload = { "incident": { "status": "resolved" } }
-        r = requests.patch(incidentUrl, headers=self.getHeaders(), data=json.dumps(payload))
+        self.client.updateIncident(incidentId, payload)
 
     def createIncident(self, componentId, newComponentStatus: str, incidentDetails: Incident):
-        incidentUrl = str.format("https://api.statuspage.io/v1/pages/{0}/incidents", self.config.pageId)
-        logger.info("Creating incident: %s", incidentUrl)
+        logger.info("Creating incident: Component %s - New Component Status %s", componentId, newComponentStatus)
         payload = { "incident": 
             {
                 "name": incidentDetails.name,
@@ -113,4 +99,4 @@ class StatusPageOperator:
                 "components": { componentId: newComponentStatus }
             }
         }
-        r = requests.post(incidentUrl, headers=self.getHeaders(), data=json.dumps(payload))
+        self.client.createIncident(payload)
