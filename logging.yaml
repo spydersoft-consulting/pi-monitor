@@ -46,3 +46,6 @@ loggers:
 
     statuspage_io:
         propogate: yes
+
+    statuspage_io_client:
+        propoage: yes
