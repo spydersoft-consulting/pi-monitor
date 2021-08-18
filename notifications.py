@@ -6,6 +6,8 @@ from pathlib import Path
 
 from email.message import EmailMessage
 
+logger = logging.getLogger(__name__)
+
 def notify(subject, content):
 
     config_file = Path('notifications.config.json')
@@ -18,7 +20,7 @@ def notify(subject, content):
     f.close()
 
     if (configData['smsEmail']):
-        logging.debug(str.format("Sending Notifcation to ", configData['smsEmail']))
+        logger.debug("Sending Notification to %s", configData['smsEmail'])
         msg = EmailMessage()
         msg.set_content(content)
         msg['Subject'] = subject
@@ -31,4 +33,4 @@ def notify(subject, content):
             server.send_message(msg, configData['smtp_sender_id'], configData['smsEmail'])
             server.quit()
         except:
-            logging.error("Error sending notification", sys.exc_info()[0])
+            logger.error("Error sending notification: %s", sys.exc_info()[0])

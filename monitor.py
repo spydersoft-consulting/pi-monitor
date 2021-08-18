@@ -1,46 +1,48 @@
 import json
+import os
+import yaml
+import logging.config
 import logging
+import logging.handlers
+import coloredlogs
 import healthchecks
 import statuspage_io
 import notifications
 
-def main():
-    
-    #logging.basicConfig(filename='test.log', level=logging.DEBUG)
 
-    f = open('monitor.config.json')
-    configData = json.load(f)
-    f.close()
+def setup_logging(default_path='logging.yaml', default_level=logging.INFO, env_key='LOG_CFG'):
+    """
+    | **@author:** Prathyush SP
+    | https://gist.github.com/kingspp/9451566a5555fb022215ca2b7b802f19
+    | Logging Setup
+    """
+    path = default_path
+    value = os.getenv(env_key, None)
+    if value:
+        path = value
+    if os.path.exists(path):
+        with open(path, 'rt') as f:
+            try:
+                config = yaml.safe_load(f.read())
+                logging.config.dictConfig(config)
+                coloredlogs.install()
+            except Exception as e:
+                print(e)
+                print('Error in Logging Configuration. Using default configs')
+                logging.basicConfig(level=default_level)
+                coloredlogs.install(level=default_level)
+    else:
+        logging.basicConfig(level=default_level)
+        coloredlogs.install(level=default_level)
+        print('Failed to load configuration file. Using default configs')
 
-    operator = statuspage_io.StatusPageOperator()
 
-    for statusCheck in configData['statusChecks']:
-        logging.info(str.format('Checking ', statusCheck['name'], '...'))
-        statusResult = healthchecks.status_check(statusCheck['url'])
-        incident = statuspage_io.Incident()
-        newComponentStatus = "operational"
+setup_logging()
+logger = logging.getLogger(__name__)
 
-        sendNotification = False
-        
-        if (statusResult.success):
-            # Good Check
-            logging.info("Status OK")
-            newComponentStatus = "operational"
+logger.info("Reading Configuration File")
+with open('monitor.config.json') as configFile:
+    configData = json.load(configFile)
 
-        else:
-            newComponentStatus = "major_outage"
-            # Bad check
-            logging.warning(statusResult.message)
-            incident.name = str.format("{0} is not responsive", statusCheck['name'])
-            incident.description = str.format("{0} is not responsive", statusCheck['name'])
-            sendNotification = True
-       
-
-        if (statusCheck['statusPageComponentId'] != ''):
-            statusIoResult = operator.checkAndUpdateComponentStatus(statusCheck['statusPageComponentId'], newComponentStatus, incident)   
-            sendNotification = statusIoResult.incidentResult.incidentCreated
-
-        if (sendNotification):              
-            notifications.notify(incident.name, incident.description) 
-
-main()
+for statusCheck in configData['statusChecks']:
+    healthchecks.execute_status_check(statusCheck)
