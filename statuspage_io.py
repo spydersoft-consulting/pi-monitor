@@ -76,7 +76,7 @@ class StatusPageOperator:
         result = self.client.getUnresolvedIncidents()
         return list(self.filter_set(result, componentId))
 
-    def checkAndLogIncident(self, componentId, oldComponentStatus, newComponentStatus, incidentDetails:Incident) -> IncidentResult:
+    def checkAndLogIncident(self, componentId: str, newComponentStatus: str, incidentDetails:Incident) -> IncidentResult:
         '''
         For now, if it's operational, close open incidents, and if it's not operational, create a new 
         ticket if one isn't already open for this component.  Future state will involve more detail around outage and maintenance

@@ -36,8 +36,8 @@ class Settings:
     notification: NotificationSettings
     statusPage: StatusPageSettings
 
-    def __init__(self, jData):
-        self.__dict__ = json.loads(jData)
+    def __init__(self):
+        pass
 
 def readConfiguration(file: str = 'monitor.config.json', default: any = {}) -> Settings:
     configPath = Path(file)
