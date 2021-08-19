@@ -7,7 +7,10 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
-class StatusPageSettings:
+class StatusPageComponentSettings:
+    """ Settings for StatusPage.io components
+
+    """
     componentId: str
 
 
@@ -20,12 +23,25 @@ class Generic:
 
 
 class CheckSettings:
+    """ Settings for HealthChecks
+
+    Attributes:
+        name (str): The name of the site being checked
+        url (str): The url to be fetched as part of the check
+        statusPage (StatusPageComponentSettings): Any StatusPage-related component settings
+    """
     name: str
     url: str
-    statusPage: StatusPageSettings
+    statusPage: StatusPageComponentSettings
 
 
 class StatusPageSettings:
+    """ Settings for StatusPage.io
+
+    Attributes:
+        apiKey (str): The API Key to access statuspage.io
+        pageId (str): Your PageId for statuspage.io
+    """
     apiKey: str
     pageId: str
 
