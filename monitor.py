@@ -7,6 +7,7 @@ import logging
 import logging.handlers
 import coloredlogs
 import healthchecks
+import configuration
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -41,8 +42,7 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 logger.info("Reading Configuration File")
-with open('monitor.config.json') as configFile:
-    configData = json.loads(configFile.read(), object_hook=lambda d: SimpleNamespace(**d))
+configData = configuration.readConfiguration("monitor.config.json", { "statusChecks": [] })
 
 with ThreadPoolExecutor(max_workers=4) as executor:
     tasks = { executor.submit(healthchecks.execute_status_check, statusCheck): statusCheck for statusCheck in configData.statusChecks }

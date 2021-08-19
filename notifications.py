@@ -1,25 +1,16 @@
 import sys
 import smtplib
-import json
-from types import SimpleNamespace
 import logging
-from pathlib import Path
+import configuration
 
 from email.message import EmailMessage
 
 logger = logging.getLogger(__name__)
 
-def notify(subject, content):
+def notify(subject, content, configFile: str = 'notifications.config.json'):
 
-    config_file = Path('notifications.config.json')
-
-    if (not config_file.exists()):
-        logger.info("No notifications.config.json file found.")
-        return
-
-    with open('notifications.config.json') as f:
-        configData = json.loads(f.read(), object_hook=lambda d: SimpleNamespace(**d))
-
+    configData = configuration.readConfiguration(configFile, { "smsEmail": "" })
+    
     if (configData.smsEmail != ""):
         logger.debug("Sending Notification to %s", configData.smsEmail)
         msg = EmailMessage()

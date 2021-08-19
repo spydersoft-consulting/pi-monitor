@@ -1,7 +1,6 @@
-import json
-from types import SimpleNamespace
 import logging
 import statuspage_io_client
+import configuration
 
 logger = logging.getLogger(__name__)
 
@@ -26,16 +25,15 @@ class StatusResult:
 
 class StatusPageOperator:
 
-    def __init__(self):
-        self.config = self.getConfig()
+    def __init__(self, configFile: str = 'statuspage_io.config.json'):
+        self.config = configuration.readConfiguration(configFile, { "apiKey" : "" })
         self.client = statuspage_io_client.StatusPageClient(self.config.apiKey, self.config.pageId)
 
-    def getConfig(self):
-        with open('statuspage_io.config.json') as f:
-            configData = json.loads(f.read(), object_hook=lambda d: SimpleNamespace(**d))
-        return configData
+    def IsConfigured(self) -> bool: 
+        return self.config.apiKey != ""
 
-    def checkAndUpdateComponentStatus(self, componentId, componentStatus, incidentDetails: Incident=Incident()):
+    def checkAndUpdateComponentStatus(self, componentId, componentStatus, incidentDetails: Incident=Incident()) -> StatusResult:       
+        
         if (componentStatus not in self.client.component_status_list):
             raise ValueError(str.format("Invalid status '{0}'.  Valid values are {1}", componentStatus, self.client.component_status_list))
 
@@ -68,7 +66,7 @@ class StatusPageOperator:
         return filter(iterator_func, incidents)
 
 
-    def checkAndLogIncident(self, componentId, oldComponentStatus, newComponentStatus, incidentDetails:Incident):
+    def checkAndLogIncident(self, componentId, oldComponentStatus, newComponentStatus, incidentDetails:Incident) -> IncidentResult:
         '''
         For now, if it's operational, close open incidents, and if it's not operational, create a new 
         ticket if one isn't already open for this component.  Future state will involve more detail around outage and maintenance

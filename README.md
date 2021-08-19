@@ -12,7 +12,7 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
+[![Code Climate][codeclimate-shield]][codeclimate-url]
 
 
 <!-- PROJECT LOGO -->
@@ -225,3 +225,5 @@ Project Link: [https://github.com/spyder007/pi-monitoring](https://github.com/sp
 [license-url]: https://github.com/spyder007/pi-monitoring/blob/main/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/geregam
+[codeclimate-shield]: https://img.shields.io/codeclimate/maintainability/spyder007/pi-monitoring?style=for-the-badge
+[codeclimate-url]: https://codeclimate.com/github/spyder007/pi-monitoring
