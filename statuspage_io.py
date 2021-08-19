@@ -50,7 +50,7 @@ class StatusPageOperator:
             result.statusChanged = True
             logger.info("Changing status from %s to %s", component.status, componentStatus)
             self.updateComponentStatus(componentId, componentStatus)
-            result.incidentResult = self.checkAndLogIncident(componentId, component.status, componentStatus, incidentDetails)
+            result.incidentResult = self.checkAndLogIncident(componentId, componentStatus, incidentDetails)
 
         return result
 
