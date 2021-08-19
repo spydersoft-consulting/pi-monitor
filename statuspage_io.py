@@ -66,6 +66,10 @@ class StatusPageOperator:
         return filter(iterator_func, incidents)
 
 
+    def getAssociatedIncident(self, componentId):
+        result = self.client.getUnresolvedIncidents()
+        return list(self.filter_set(result, componentId))
+
     def checkAndLogIncident(self, componentId, oldComponentStatus, newComponentStatus, incidentDetails:Incident) -> IncidentResult:
         '''
         For now, if it's operational, close open incidents, and if it's not operational, create a new 
@@ -73,25 +77,18 @@ class StatusPageOperator:
         '''
         incidentResult = IncidentResult()
 
-        result = self.client.getUnresolvedIncidents()
-
-        logger.debug(result)
-
-        associatedIncidents = list(self.filter_set(result, componentId))
+        associatedIncidents = self.getAssociatedIncident(componentId)
         asscIncidentCount = len(associatedIncidents)
-
         logger.info("Associated Incidents for %s: %d", componentId, asscIncidentCount)
 
-        if (newComponentStatus == "operational"):
-            if (asscIncidentCount > 0):
-                for incident in associatedIncidents:
-                    self.closeIncident(incident.id)
-                    incidentResult.incidentResolved = True
+        if (newComponentStatus == "operational" and asscIncidentCount > 0):
+            for incident in associatedIncidents:
+                self.closeIncident(incident.id)
+                incidentResult.incidentResolved = True
                 
-        elif (newComponentStatus == "major_outage"):
-            if (asscIncidentCount == 0):
-                self.createIncident(componentId, newComponentStatus, incidentDetails)
-                incidentResult.incidentCreated = True
+        elif (newComponentStatus == "major_outage" and asscIncidentCount == 0):
+            self.createIncident(componentId, newComponentStatus, incidentDetails)
+            incidentResult.incidentCreated = True
         
         return incidentResult
 
