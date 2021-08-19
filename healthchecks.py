@@ -54,19 +54,23 @@ def get_http(url: str) -> HttpGetResult:
     try:
         logger.info("Requesting %s", url)
         r = requests.get(url)
-        result = HttpGetResult(r.status_code == 200)
-        if (not result.success):
-            logger.info("Request failed with Response Code %d: %s", r.status_code, r.text)
-            result.message = str.format("{0} {1}", r.status_code, r.text)
-        else:
-            result.rawResponse = r.text
-            try:
-                result.response = r.json(object_hook=lambda d: SimpleNamespace(**d))
-            except:
-                result.response = {}
+        result = process_response(r)
     except Exception as e:
         logger.error("Request failed exception %s", e)
         result = HttpGetResult(False, "Unknown status failure")
 
     return result
 
+def process_response(r: requests.Response) -> HttpGetResult:
+    result = HttpGetResult(r.status_code == 200)
+    if (not result.success):
+        logger.info("Request failed with Response Code %d: %s", r.status_code, r.text)
+        result.message = str.format("{0} {1}", r.status_code, r.text)
+        return result
+    
+    result.rawResponse = r.text
+    try:
+        result.response = r.json(object_hook=lambda d: SimpleNamespace(**d))
+    except:
+        result.response = {}
+    return result
