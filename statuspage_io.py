@@ -1,6 +1,7 @@
 import logging
 import statuspage_io_client
 import configuration
+from enums import OpLevel
 
 logger = logging.getLogger(__name__)
 
@@ -25,15 +26,20 @@ class StatusResult:
 
 class StatusPageOperator:
 
-    def __init__(self, configFile: str = 'statuspage_io.config.json'):
-        self.config = configuration.readConfiguration(configFile, { "apiKey" : "" })
+    def __init__(self, statusPageConfig: configuration.StatusPageSettings):
+        self.config = statusPageConfig
         self.client = statuspage_io_client.StatusPageClient(self.config.apiKey, self.config.pageId)
 
     def IsConfigured(self) -> bool: 
         return self.config.apiKey != ""
 
-    def checkAndUpdateComponentStatus(self, componentId, componentStatus, incidentDetails: Incident=Incident()) -> StatusResult:       
+    def checkAndUpdateComponentStatus(self, componentId, opLevel: OpLevel, incidentDetails: Incident=Incident()) -> StatusResult:       
         
+        if opLevel == OpLevel.Operational:
+            componentStatus = "operational"
+        else:
+            componentStatus = "major_outage"
+
         if (componentStatus not in self.client.component_status_list):
             raise ValueError(str.format("Invalid status '{0}'.  Valid values are {1}", componentStatus, self.client.component_status_list))
 

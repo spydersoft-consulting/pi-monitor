@@ -5,6 +5,16 @@
             "url": "https://your.domain.com",
             "statusPageComponentId": "123215125"
         }
-    ]
-
+    ],
+    "notification": {
+        "smtp_url": "smtp.gmail.com",
+        "smtp_port": 587,
+        "smtp_sender_id": "gmail_email",
+        "smtp_sender_pass": "gmail_pass",
+        "smsEmail": "email@vtext.com"
+    },
+    "statusPage": {
+        "apiKey": "status_page_api_key",
+        "pageId": "status_page_page_id"
+    }
 }

@@ -1,5 +1,4 @@
-import json
-from types import SimpleNamespace
+
 import os
 import yaml
 import logging.config
@@ -8,6 +7,8 @@ import logging.handlers
 import coloredlogs
 import healthchecks
 import configuration
+import notifications
+import statuspage_io
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -42,7 +43,11 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 logger.info("Reading Configuration File")
-configData = configuration.readConfiguration("monitor.config.json", { "statusChecks": [] })
+configData = configuration.readConfiguration("monitor.config.json", configuration.Settings())
+
+notifier = notifications.Notifier(configData.notification)
+statusPageOperator = statuspage_io.StatusPageOperator(configData.statusPage)
+heathCheckExecutor = healthchecks.HealthCheckExecutor(statusPageOperator, notifier)
 
 with ThreadPoolExecutor(max_workers=4) as executor:
-    tasks = { executor.submit(healthchecks.execute_status_check, statusCheck): statusCheck for statusCheck in configData.statusChecks }
+    tasks = { executor.submit(heathCheckExecutor.execute_status_check, statusCheck): statusCheck for statusCheck in configData.statusChecks }

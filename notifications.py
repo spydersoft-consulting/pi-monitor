@@ -7,22 +7,26 @@ from email.message import EmailMessage
 
 logger = logging.getLogger(__name__)
 
-def notify(subject, content, configFile: str = 'notifications.config.json'):
+class Notifier:
+    config: configuration.NotificationSettings
 
-    configData = configuration.readConfiguration(configFile, { "smsEmail": "" })
-    
-    if (configData.smsEmail != ""):
-        logger.debug("Sending Notification to %s", configData.smsEmail)
-        msg = EmailMessage()
-        msg.set_content(content)
-        msg['Subject'] = subject
-        msg['From'] = configData.smtp_sender_id
-        msg['To'] = configData.smsEmail
-        try:
-            server = smtplib.SMTP(configData.smtp_url, configData.smtp_port)
-            server.starttls()
-            server.login(configData.smtp_sender_id, configData.smtp_sender_pass)
-            server.send_message(msg, configData.smtp_sender_id, configData.smsEmail)
-            server.quit()
-        except:
-            logger.error("Error sending notification: %s", sys.exc_info()[0])
+    def __init__(self, notifyConfig: configuration.NotificationSettings ) -> None:
+        self.config = notifyConfig
+
+    def notify(self, subject, content):
+
+        if (self.config.smsEmail != ""):
+            logger.debug("Sending Notification to %s", self.config.smsEmail)
+            msg = EmailMessage()
+            msg.set_content(content)
+            msg['Subject'] = subject
+            msg['From'] = self.config.smtp_sender_id
+            msg['To'] = self.config.smsEmail
+            try:
+                server = smtplib.SMTP(self.config.smtp_url, self.config.smtp_port)
+                server.starttls()
+                server.login(self.config.smtp_sender_id, self.config.smtp_sender_pass)
+                server.send_message(msg, self.config.smtp_sender_id, self.config.smsEmail)
+                server.quit()
+            except:
+                logger.error("Error sending notification: %s", sys.exc_info()[0])
