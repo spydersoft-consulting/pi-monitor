@@ -6,8 +6,10 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+
 class StatusPageSettings:
     componentId: str
+
 
 class Generic:
     @classmethod
@@ -16,20 +18,25 @@ class Generic:
         obj.__dict__.update(dict)
         return obj
 
+
 class CheckSettings:
     name: str
     url: str
     statusPage: StatusPageSettings
 
+
 class StatusPageSettings:
     apiKey: str
     pageId: str
+
+
 class NotificationSettings:
     smtp_url: str
     smtp_port: int
     smtp_sender_id: str
     smpt_sender_pass: str
     smsEmail: str
+
 
 class Settings:
     statusChecks: List[CheckSettings]
@@ -38,6 +45,7 @@ class Settings:
 
     def __init__(self):
         pass
+
 
 def readConfiguration(file: str = 'monitor.config.json', default: any = {}) -> Settings:
     configPath = Path(file)

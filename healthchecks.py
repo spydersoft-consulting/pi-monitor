@@ -9,6 +9,7 @@ from enums import OpLevel
 
 logger = logging.getLogger(__name__)
 
+
 class HttpGetResult:
     success: bool = True
     message: str = ''
@@ -17,6 +18,8 @@ class HttpGetResult:
     def __init__(self, success: bool, msg: str = ''):
         self.success = success
         self.message = msg
+
+
 class HealthCheckExecutor:
     statuspage_operator: statuspage_io.StatusPageOperator
     notifier: notifications.Notifier
@@ -28,7 +31,7 @@ class HealthCheckExecutor:
     def execute_status_check(self, checkSettings: configuration.CheckSettings):
 
         logger.info('Checking %s...', checkSettings.name)
-        
+
         sendNotification = False
         opLevel = OpLevel.Operational
 
@@ -48,8 +51,9 @@ class HealthCheckExecutor:
             statusIoResult = self.updateStatusPage(checkSettings, opLevel)
             sendNotification = statusIoResult.incidentResult.incidentCreated
 
-        if (sendNotification):              
-            self.notifier.notify(checkSettings.name, str.format("{0} is not responsive", checkSettings.name)) 
+        if (sendNotification):
+            self.notifier.notify(checkSettings.name, str.format(
+                "{0} is not responsive", checkSettings.name))
 
     def get_http(self, url: str) -> HttpGetResult:
         if (not url or url == ""):
@@ -69,13 +73,15 @@ class HealthCheckExecutor:
     def process_response(self, r: requests.Response) -> HttpGetResult:
         result = HttpGetResult(r.status_code == 200)
         if (not result.success):
-            logger.info("Request failed with Response Code %d: %s", r.status_code, r.text)
+            logger.info("Request failed with Response Code %d: %s",
+                        r.status_code, r.text)
             result.message = str.format("{0} {1}", r.status_code, r.text)
             return result
-        
+
         result.rawResponse = r.text
         try:
-            result.response = r.json(object_hook=lambda d: SimpleNamespace(**d))
+            result.response = r.json(
+                object_hook=lambda d: SimpleNamespace(**d))
         except:
             result.response = {}
         return result
@@ -83,6 +89,6 @@ class HealthCheckExecutor:
     def updateStatusPage(self, checkSettings: configuration.CheckSettings, opLevel: OpLevel) -> statuspage_io.StatusResult:
         incident = statuspage_io.Incident()
         incident.name = checkSettings.name
-        incident.description = str.format("{0} is not responsive", checkSettings.name)
-        return self.statuspage_operator.checkAndUpdateComponentStatus(checkSettings.statusPage.componentId, opLevel, incident)   
-        
+        incident.description = str.format(
+            "{0} is not responsive", checkSettings.name)
+        return self.statuspage_operator.checkAndUpdateComponentStatus(checkSettings.statusPage.componentId, opLevel, incident)

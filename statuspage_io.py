@@ -5,9 +5,11 @@ from enums import OpLevel
 
 logger = logging.getLogger(__name__)
 
+
 class Incident:
     name = "Incident Name"
     description = "Incident Description"
+
 
 class IncidentResult:
     incidentCreated = False
@@ -17,49 +19,57 @@ class IncidentResult:
         self.incidentCreated = False
         self.incidentResolved = False
 
+
 class StatusResult:
     statusChanged = False
     incidentResult = IncidentResult()
-    
+
     def __init__(self):
         self.incidentResult = IncidentResult()
+
 
 class StatusPageOperator:
 
     def __init__(self, statusPageConfig: configuration.StatusPageSettings):
         self.config = statusPageConfig
-        self.client = statuspage_io_client.StatusPageClient(self.config.apiKey, self.config.pageId)
+        self.client = statuspage_io_client.StatusPageClient(
+            self.config.apiKey, self.config.pageId)
 
-    def IsConfigured(self) -> bool: 
+    def IsConfigured(self) -> bool:
         return self.config.apiKey != ""
 
-    def checkAndUpdateComponentStatus(self, componentId, opLevel: OpLevel, incidentDetails: Incident=Incident()) -> StatusResult:       
-        
+    def checkAndUpdateComponentStatus(self, componentId, opLevel: OpLevel, incidentDetails: Incident = Incident()) -> StatusResult:
+
         if opLevel == OpLevel.Operational:
             componentStatus = "operational"
         else:
             componentStatus = "major_outage"
 
         if (componentStatus not in self.client.component_status_list):
-            raise ValueError(str.format("Invalid status '{0}'.  Valid values are {1}", componentStatus, self.client.component_status_list))
+            raise ValueError(str.format(
+                "Invalid status '{0}'.  Valid values are {1}", componentStatus, self.client.component_status_list))
 
         result = StatusResult()
         component = self.client.getComponent(componentId)
 
         if (component.status != componentStatus):
             result.statusChanged = True
-            logger.info("Changing status from %s to %s", component.status, componentStatus)
+            logger.info("Changing status from %s to %s",
+                        component.status, componentStatus)
             self.updateComponentStatus(componentId, componentStatus)
-            result.incidentResult = self.checkAndLogIncident(componentId, componentStatus, incidentDetails)
+            result.incidentResult = self.checkAndLogIncident(
+                componentId, componentStatus, incidentDetails)
 
         return result
 
     def updateComponentStatus(self, componentId, newComponentStatus):
         if (newComponentStatus not in self.client.component_status_list):
-            raise ValueError(str.format("Invalid status '{0}'.  Valid values are {1}", newComponentStatus, self.client.component_status_list))
+            raise ValueError(str.format(
+                "Invalid status '{0}'.  Valid values are {1}", newComponentStatus, self.client.component_status_list))
 
-        logger.debug("Setting component status to %s: %s", newComponentStatus, componentId)
-        payload = { "component": { "status": newComponentStatus } }
+        logger.debug("Setting component status to %s: %s",
+                     newComponentStatus, componentId)
+        payload = {"component": {"status": newComponentStatus}}
         self.client.updateComponent(componentId, payload)
 
     def filter_set(self, incidents, componentId):
@@ -68,15 +78,14 @@ class StatusPageOperator:
                 if comp.id == componentId:
                     return True
             return False
-        
-        return filter(iterator_func, incidents)
 
+        return filter(iterator_func, incidents)
 
     def getAssociatedIncident(self, componentId):
         result = self.client.getUnresolvedIncidents()
         return list(self.filter_set(result, componentId))
 
-    def checkAndLogIncident(self, componentId: str, newComponentStatus: str, incidentDetails:Incident) -> IncidentResult:
+    def checkAndLogIncident(self, componentId: str, newComponentStatus: str, incidentDetails: Incident) -> IncidentResult:
         '''
         For now, if it's operational, close open incidents, and if it's not operational, create a new 
         ticket if one isn't already open for this component.  Future state will involve more detail around outage and maintenance
@@ -85,33 +94,36 @@ class StatusPageOperator:
 
         associatedIncidents = self.getAssociatedIncident(componentId)
         asscIncidentCount = len(associatedIncidents)
-        logger.info("Associated Incidents for %s: %d", componentId, asscIncidentCount)
+        logger.info("Associated Incidents for %s: %d",
+                    componentId, asscIncidentCount)
 
         if (newComponentStatus == "operational" and asscIncidentCount > 0):
             for incident in associatedIncidents:
                 self.closeIncident(incident.id)
                 incidentResult.incidentResolved = True
-                
+
         elif (newComponentStatus == "major_outage" and asscIncidentCount == 0):
-            self.createIncident(componentId, newComponentStatus, incidentDetails)
+            self.createIncident(
+                componentId, newComponentStatus, incidentDetails)
             incidentResult.incidentCreated = True
-        
+
         return incidentResult
 
     def closeIncident(self, incidentId):
         logger.info("Closing incident %s", incidentId)
-        payload = { "incident": { "status": "resolved" } }
+        payload = {"incident": {"status": "resolved"}}
         self.client.updateIncident(incidentId, payload)
 
     def createIncident(self, componentId, newComponentStatus: str, incidentDetails: Incident):
-        logger.info("Creating incident: Component %s - New Component Status %s", componentId, newComponentStatus)
-        payload = { "incident": 
-            {
-                "name": incidentDetails.name,
-                "status": "investigating",
-                "body": incidentDetails.description,
-                "component_ids": [ componentId ],
-                "components": { componentId: newComponentStatus }
-            }
-        }
+        logger.info("Creating incident: Component %s - New Component Status %s",
+                    componentId, newComponentStatus)
+        payload = {"incident":
+                   {
+                       "name": incidentDetails.name,
+                       "status": "investigating",
+                       "body": incidentDetails.description,
+                       "component_ids": [componentId],
+                       "components": {componentId: newComponentStatus}
+                   }
+                   }
         self.client.createIncident(payload)

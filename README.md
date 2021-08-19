@@ -108,25 +108,25 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 ## Configuration Settings
 
-### Monitor (monitor.config.json)
+Configuration settings default to `monitor.config.json` with the following format:
 
-`monitor.config.json` is a required configuration file that defines the checks to be executed.  See the table below for details.
 
 ```json
 {
-    "statusChecks": [...]
+    "statusChecks": [...],
+    "notification" : { },
+    "statusPage" : {}
 }
 ```
 
+
 | Element | Description | Required? |
 | ------- | ----------- | --------- |
-| *statusChecks* | array of *[statusCheck](#StatusCheck)* objects | Yes |
+| *statusChecks* | Array of *[statusCheck](#StatusCheck)* objects | Yes |
+| *notification* | A [Notification Configuration](#Notification%20Configuration) object | Yes |
+| *statusPage*   | A [StatusPage Configuration](#StatusPage%20Configuration) object | No |
 
-### Notifications (notifications.config.json)
-
-`notifications.config.json` is a required configuration file that defines settings for sending email notifications directly from the scripts.  See the table below for details.
-
-> If this file is missing, notifications will not be sent via email
+### Notification Configuration
 
 | Attribute | Description | Required? |
 | ------- | ----------- | ---------| 
@@ -138,22 +138,18 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 > If you are using Gmail to send, you need to set your account's `Allow Less Secure Apps` setting to `true`
 
-### StatusPage.io (statuspage_io.config.json)
-
-`statuspage_io.config.json` is a required configuration file that defines settings for reporting incidents and component updats to statuspage.io.  See the table below for details.
+### StatusPage Configuration
 
 | Attribute | Description | Required? |
 | ------- | ----------- | ---------| 
 | apiKey | API Key for statuspage.io | Yes |
 | pageId | Page ID for statuspage.io | Yes |
 
-## Object Definitions
-
 ### StatusCheck
 
 A `statusCheck` represents a simple request to the defined `url`. If a non-200 the request generates an exception or a non-200 response, the site is determined to be down.  
 
-If `statusPageComponentId` is defined, statuspage.io will be updated according to the following rules.
+If `statusPage` is defined, statuspage.io will be updated according to the following rules.
 
 - If the site returns a 2xx response and statuspage.io lists the component as non-operational:
     - The component's status will be set to operational
@@ -166,15 +162,22 @@ If `statusPageComponentId` is defined, statuspage.io will be updated according t
 ```json
 {
     "name": "Site name",
-    "url": "https://my.domain.com/",
-    "statusPageComponentId": "11111111"
+    "url": "https://my.domain.com/", 
+    "statusPage" : {
+      "componentId" :"11111111"
+    }
 }
 ```
 | Attribute | Description | Required? |
 | ------- | ----------- | ---------| 
 | name | Name of the site being checked | Yes |
 | url | URL to be retrieved for status check | Yes |
-| statusPageComponentId | ComponentId for statuspage.io | No |
+| statusPage | A [StatusPage Settings](#StatusPage%20Settings) object | No |
+
+### StatusPage Settings
+| Attribute | Description | Required? |
+| ------- | ----------- | ---------| 
+| componentId | The associated StatusPage.IO ComponentId | Yes |
 
 <!-- ROADMAP -->
 ## Roadmap
