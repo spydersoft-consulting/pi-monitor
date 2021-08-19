@@ -3,14 +3,18 @@ import logging
 import statuspage_io
 import notifications
 from time import sleep
+import json
+from types import SimpleNamespace
 
 logger = logging.getLogger(__name__)
-class StatusResult:
-    success = True
-    message = ''
+class HttpGetResult:
+    success: bool = True
+    message: str = ''
+    response: any = {}
 
-    def __init__(self, success):
+    def __init__(self, success: bool, msg: str = ''):
         self.success = success
+        self.message = msg
 
 def execute_status_check(statusCheckDef):
 
@@ -21,36 +25,19 @@ def execute_status_check(statusCheckDef):
     sendNotification = False
     newComponentStatus = "operational"
 
-    if (not statusCheckDef.url):
-        logger.warn("Status Check %s contains no url", statusCheckDef.name)
-        return
+    httpResult = get_http(statusCheckDef.url)
 
-    try:
-        logger.info("Requesting %s", statusCheckDef.url)
-        r = requests.get(statusCheckDef.url)
-        #logger.debug("Result: %s", r.text)
-        statusResult = StatusResult(r.status_code == 200)
-        if (not statusResult.success):
-            logger.info("Request failed with Response Code %d: %s", r.status_code, r.text)
-            statusResult.message = str.format("{0} {1}", r.status_code, r.text)
-    except Exception as e:
-        logger.error("Request failed exception %s", e)
-        statusResult = StatusResult(False)
-        statusResult.message = "Unknown status failure"
-
-    if (statusResult.success):
+    if (httpResult.success):
         # Good Check
         logger.info("Status OK")
         newComponentStatus = "operational"
-
     else:
         # Bad check
         newComponentStatus = "major_outage"
-        logger.warning(statusResult.message)
+        logger.warning(httpResult.message)
         incident.name = statusCheckDef.name
         incident.description = str.format("{0} is not responsive", statusCheckDef.name)
         sendNotification = True
-    
 
     if (statusCheckDef.statusPageComponentId != ''):
         statusIoResult = operator.checkAndUpdateComponentStatus(statusCheckDef.statusPageComponentId, newComponentStatus, incident)   
@@ -59,5 +46,27 @@ def execute_status_check(statusCheckDef):
     if (sendNotification):              
         notifications.notify(incident.name, incident.description) 
 
+def get_http(url: str) -> HttpGetResult:
+    if (not url or url == ""):
+        result = HttpGetResult(False, "no url defined")
+        return result
 
+    try:
+        logger.info("Requesting %s", url)
+        r = requests.get(url)
+        result = HttpGetResult(r.status_code == 200)
+        if (not result.success):
+            logger.info("Request failed with Response Code %d: %s", r.status_code, r.text)
+            result.message = str.format("{0} {1}", r.status_code, r.text)
+        else:
+            result.rawResponse = r.text
+            try:
+                result.response = r.json(object_hook=lambda d: SimpleNamespace(**d))
+            except:
+                result.response = {}
+    except Exception as e:
+        logger.error("Request failed exception %s", e)
+        result = HttpGetResult(False, "Unknown status failure")
+
+    return result
 
