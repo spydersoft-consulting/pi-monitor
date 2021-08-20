@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 class StatusPageComponentSettings:
     """ Settings for StatusPage.io components
 
+        Attributes:
+            componentId (str): The ID of the component in your statuspage.io page
     """
     componentId: str
 
@@ -47,6 +49,16 @@ class StatusPageSettings:
 
 
 class NotificationSettings:
+    """ Notification Settings
+
+    Attributes:
+        smtp_url (str): The URL of the SMTP host
+        smtp_port (int): The SMTP Port to use
+        smtp_sender_id (str): The SMTP user
+        smtp_sender_Pass (str): The SMTP user's password
+        smsEmail: The email to receive notifications
+
+    """
     smtp_url: str
     smtp_port: int
     smtp_sender_id: str
@@ -55,6 +67,15 @@ class NotificationSettings:
 
 
 class Settings:
+    """ Settings
+
+    This class represents the entire structure of the configuration file (`monitor.config.json` by default).
+
+    Attributes:
+        statusChecks: The collection of statusCheck settings
+        notification: The settings object for notifications
+        statusPage: The settings object for StatusPage.io
+    """
     statusChecks: List[CheckSettings]
     notification: NotificationSettings
     statusPage: StatusPageSettings
