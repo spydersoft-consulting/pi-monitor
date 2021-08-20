@@ -92,7 +92,7 @@ pip3 install pyyaml coloredlogs
    ```sh
    git clone https://github.com/spyder007/pi-monitoring.git
    ```
-2. Copy *.config.json.template files to *.config.json and modify the settings within those config files accordingly
+2. Copy `monitor.config.json.template` to `monitor.config.json` and modify the settings within those config files accordingly
 
 3. Execute `monitor.py`
    ```sh
@@ -104,80 +104,12 @@ pip3 install pyyaml coloredlogs
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+_For more examples, please refer to the [Documentation](https://spyder007.github.io/pi-monitoring)_
 
 ## Configuration Settings
 
 Configuration settings default to `monitor.config.json` with the following format:
 
-
-```json
-{
-    "statusChecks": [...],
-    "notification" : { },
-    "statusPage" : {}
-}
-```
-
-
-| Element | Description | Required? |
-| ------- | ----------- | --------- |
-| *statusChecks* | Array of *[statusCheck](#StatusCheck)* objects | Yes |
-| *notification* | A [Notification Configuration](#Notification%20Configuration) object | Yes |
-| *statusPage*   | A [StatusPage Configuration](#StatusPage%20Configuration) object | No |
-
-### Notification Configuration
-
-| Attribute | Description | Required? |
-| ------- | ----------- | ---------| 
-| smtp_url | Host/IP of the SMTP Server | Yes |
-| smtp_port | SMTP Port for Host | Yes |
-| smtp_sender_id | SMTP User Id | Yes |
-| smtp_sender_pass | SMTP Password | Yes |
-| smsEmail | Email to send notifications | Yes | 
-
-> If you are using Gmail to send, you need to set your account's `Allow Less Secure Apps` setting to `true`
-
-### StatusPage Configuration
-
-| Attribute | Description | Required? |
-| ------- | ----------- | ---------| 
-| apiKey | API Key for statuspage.io | Yes |
-| pageId | Page ID for statuspage.io | Yes |
-
-### StatusCheck
-
-A `statusCheck` represents a simple request to the defined `url`. If a non-200 the request generates an exception or a non-200 response, the site is determined to be down.  
-
-If `statusPage` is defined, statuspage.io will be updated according to the following rules.
-
-- If the site returns a 2xx response and statuspage.io lists the component as non-operational:
-    - The component's status will be set to operational
-    - Any open incidents associated with this component will be marked as resolved
-- If the site returns a non-2xx response or an exception and statuspage.io lists the component as operational:
-    - The component's status will be set to operational
-    - An incident will be opened using the `name` and associated with this component.
-
-
-```json
-{
-    "name": "Site name",
-    "url": "https://my.domain.com/", 
-    "statusPage" : {
-      "componentId" :"11111111"
-    }
-}
-```
-| Attribute | Description | Required? |
-| ------- | ----------- | ---------| 
-| name | Name of the site being checked | Yes |
-| url | URL to be retrieved for status check | Yes |
-| statusPage | A [StatusPage Settings](#StatusPage%20Settings) object | No |
-
-### StatusPage Settings
-| Attribute | Description | Required? |
-| ------- | ----------- | ---------| 
-| componentId | The associated StatusPage.IO ComponentId | Yes |
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -195,8 +127,6 @@ Contributions are what make the open source community such an amazing place to b
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-
 
 <!-- LICENSE -->
 ## License

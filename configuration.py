@@ -1,4 +1,11 @@
 
+# -*- coding: utf-8 -*-
+"""Configuration Module
+
+This module provides a function for reading a JSON file into the provided Settings object.
+
+"""
+
 import json
 from typing import List
 import logging
@@ -24,8 +31,20 @@ class Generic:
         return obj
 
 
-class CheckSettings:
-    """ Settings for HealthChecks
+class HealthCheckSettings:
+    """Settings for a HealthCheck
+
+    A Healthcheck represents a simple request to the defined `url`. If a non-200 the request generates an exception or a non-200 response, the site is determined to be down.  
+
+    If `statusPage` is defined, statuspage.io will be updated according to the following rules.
+
+    - If the site returns a 2xx response and statuspage.io lists the component as non-operational:
+        - The component's status will be set to operational
+        - Any open incidents associated with this component will be marked as resolved
+    - If the site returns a non-2xx response or an exception and statuspage.io lists the component as operational:
+        - The component's status will be set to operational
+        - An incident will be opened using the `name` and associated with this component.
+
 
     Attributes:
         name (str): The name of the site being checked
@@ -38,7 +57,7 @@ class CheckSettings:
 
 
 class StatusPageSettings:
-    """ Settings for StatusPage.io
+    """Settings for StatusPage.io
 
     Attributes:
         apiKey (str): The API Key to access statuspage.io
@@ -49,7 +68,9 @@ class StatusPageSettings:
 
 
 class NotificationSettings:
-    """ Notification Settings
+    """Notification Settings
+
+    This class represents settings for notifications.  If you are using Gmail to send, you need to set your account's `Allow Less Secure Apps` setting to `true`
 
     Attributes:
         smtp_url (str): The URL of the SMTP host
@@ -66,8 +87,8 @@ class NotificationSettings:
     smsEmail: str
 
 
-class Settings:
-    """ Settings
+class MonitorSettings:
+    """MonitorSettings
 
     This class represents the entire structure of the configuration file (`monitor.config.json` by default).
 
@@ -76,7 +97,7 @@ class Settings:
         notification: The settings object for notifications
         statusPage: The settings object for StatusPage.io
     """
-    statusChecks: List[CheckSettings]
+    statusChecks: List[HealthCheckSettings]
     notification: NotificationSettings
     statusPage: StatusPageSettings
 
@@ -84,12 +105,21 @@ class Settings:
         pass
 
 
-def readConfiguration(file: str = 'monitor.config.json', default: any = {}) -> Settings:
+def readConfiguration(file: str = 'monitor.config.json', defaultSettings: MonitorSettings = {}) -> MonitorSettings:
+    """Read Configuration file and return settings
+    
+    Args:
+        file: The file name to use for configuration.  The default value is `monitor.config.json`
+        defaultSettings: A default instance of the settings to use if the file cannot be found.
+
+    Returns:
+        MonitorSettings: A MonitorSettings object populated from the given file, or an empty Settings object.
+    """
     configPath = Path(file)
 
     if (not configPath.exists()):
         logger.info("Configuration file not found: %s.  Using default", file)
-        return default
+        return defaultSettings
 
     configDataRaw = configPath.read_text()
     return json.loads(configDataRaw, object_hook=Generic.from_dict)

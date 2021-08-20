@@ -28,7 +28,7 @@ class HealthCheckExecutor:
         self.statuspage_operator = statusOperator
         self.notifier = notifier
 
-    def execute_status_check(self, checkSettings: configuration.CheckSettings):
+    def execute_status_check(self, checkSettings: configuration.HealthCheckSettings):
 
         logger.info('Checking %s...', checkSettings.name)
 
@@ -86,7 +86,7 @@ class HealthCheckExecutor:
             result.response = {}
         return result
 
-    def updateStatusPage(self, checkSettings: configuration.CheckSettings, opLevel: OpLevel) -> statuspage_io.StatusResult:
+    def updateStatusPage(self, checkSettings: configuration.HealthCheckSettings, opLevel: OpLevel) -> statuspage_io.StatusResult:
         incident = statuspage_io.Incident()
         incident.name = checkSettings.name
         incident.description = str.format(
