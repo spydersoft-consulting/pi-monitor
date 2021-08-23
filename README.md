@@ -73,31 +73,7 @@ PI Monitoring is a set of Python scripts used to monitor web sites and report in
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To get a local copy up and running follow these simple steps.
-
-### Prerequisites
-
-* [Python](https://www.python.org/)
-* [PyYaml]()
-* [ColoredLogs]()
-
-These scripts were written and tested on Python 3.7.3 (Raspbian) and 3.9.1 (Windows).  Install the dependencies as follows:
-```sh
-pip3 install pyyaml coloredlogs
-```
-
-### Installation
-
-1. Clone the repo
-   ```sh
-   git clone https://github.com/spyder007/pi-monitoring.git
-   ```
-2. Copy `monitor.config.json.template` to `monitor.config.json` and modify the settings within those config files accordingly
-
-3. Execute `monitor.py`
-   ```sh
-   python monitor.py
-   ```
+Refer to the [Getting Started section](https://spyder007.github.io/pi-monitoring/getting-started) of the documentation
 
 <!-- USAGE EXAMPLES -->
 ## Usage
@@ -105,10 +81,6 @@ pip3 install pyyaml coloredlogs
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
 _For more examples, please refer to the [Documentation](https://spyder007.github.io/pi-monitoring)_
-
-## Configuration Settings
-
-Configuration settings default to `monitor.config.json` with the following format:
 
 
 <!-- ROADMAP -->

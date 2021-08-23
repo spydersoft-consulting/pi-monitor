@@ -1,6 +1,20 @@
-site_name: My Docs
+site_name: PI Monitoring
+site_url: https://spyder007.github.io/pi-monitoring/
+
+
+nav:
+  - Home: 'index.md'
+  - 'getting-started.md'
+  - 'API Documentation':
+    - 'api/configuration-reference.md'
+    - 'api/healthchecks-reference.md'
+    - 'api/notifications-reference.md'
+    - 'api/statuspage_io-reference.md'
+    - 'api/statuspage_io_client-reference.md'
+    - 'api/enums.md'
+
 theme:
-  name: "material"
+  name: 'material'
 
 plugins:
   - search
