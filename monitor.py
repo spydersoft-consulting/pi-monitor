@@ -52,4 +52,4 @@ heathCheckExecutor = healthchecks.HealthCheckExecutor(
     statusPageOperator, notifier)
 
 with ThreadPoolExecutor(max_workers=4) as executor:
-    tasks = {executor.submit(heathCheckExecutor.execute_status_check, statusCheck): statusCheck for statusCheck in configData.statusChecks}
+    tasks = {executor.submit(heathCheckExecutor.execute_health_check, statusCheck): statusCheck for statusCheck in configData.statusChecks}
