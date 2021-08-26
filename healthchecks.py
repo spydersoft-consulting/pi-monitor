@@ -93,11 +93,13 @@ class HealthCheckExecutor:
 
         if (checkSettings.statusPage and checkSettings.statusPage.componentId != ''):
             statusIoResult = self._updateStatusPage(checkSettings, opLevel)
-            sendNotification = statusIoResult.incidentResult.incidentCreated
+            sendNotification = statusIoResult.incidentResult.incidentCreated or statusIoResult.incidentResult.incidentResolved
+            notificationText = statusIoResult.incidentResult.incident.description
+
 
         if (sendNotification):
-            self.notifier.notify(checkSettings.name, str.format(
-                "{0} is not responsive", checkSettings.name))
+            logger.info("Sending notification: %s", notificationText)
+            self.notifier.notify(checkSettings.name, notificationText)
 
     def _get_http(self, url: str) -> HttpGetResult:
         """ Retrieve data from the URL
@@ -153,6 +155,13 @@ class HealthCheckExecutor:
     def _updateStatusPage(self, checkSettings: configuration.HealthCheckSettings, opLevel: OpLevel) -> statuspage_io.StatusResult:
         incident = statuspage_io.Incident()
         incident.name = checkSettings.name
-        incident.description = str.format(
-            "{0} is not responsive", checkSettings.name)
+        
+        descriptionDict = {
+            OpLevel.Operational: 'Operating Normally',
+            OpLevel.Degraded: 'Service Degraded',
+            OpLevel.Partial_Outage: 'Partial Service Outage',
+            OpLevel.Full_Outage: 'Major Service Outage'
+        }
+        incident.description = descriptionDict[opLevel]
+
         return self.statuspage_operator.UpdateComponentStatus(checkSettings.statusPage.componentId, opLevel, incident)

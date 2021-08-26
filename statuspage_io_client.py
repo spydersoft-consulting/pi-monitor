@@ -55,8 +55,11 @@ class StatusPageClient:
         componentUrl = str.format(
             "https://api.statuspage.io/v1/pages/{0}/components/{1}", self.pageId, componentId)
         logger.info("Retrieving component from StatusPage: %s", componentUrl)
-        component = requests.get(componentUrl, headers=self.getHeaders())
-        return component.json(object_hook=lambda d: SimpleNamespace(**d))
+        try:
+            component = requests.get(componentUrl, headers=self._getHeaders())
+            return component.json(object_hook=lambda d: SimpleNamespace(**d))
+        except Exception as e:
+            logger.error("Request failed exception %s", e)
 
     def updateComponent(self, componentId: str, payload: object) -> object:
         """  Update Component Information
@@ -74,7 +77,7 @@ class StatusPageClient:
         componentUrl = str.format(
             "https://api.statuspage.io/v1/pages/{0}/components/{1}", self.pageId, componentId)
         logger.debug("Updating component %s: %s", componentId, payload)
-        r = requests.put(componentUrl, headers=self.getHeaders(),
+        r = requests.put(componentUrl, headers=self._getHeaders(),
                          data=json.dumps(payload))
         return r.json(object_hook=lambda d: SimpleNamespace(**d))
 
@@ -91,7 +94,7 @@ class StatusPageClient:
         unresolvedIncidentsUrl = str.format(
             "https://api.statuspage.io/v1/pages/{0}/incidents/unresolved", self.pageId)
         unresolvedIncidentsResponse = requests.get(
-            unresolvedIncidentsUrl, headers=self.getHeaders())
+            unresolvedIncidentsUrl, headers=self._getHeaders())
         result = unresolvedIncidentsResponse.json(
             object_hook=lambda d: SimpleNamespace(**d))
         return result
@@ -111,7 +114,7 @@ class StatusPageClient:
         incidentUrl = str.format(
             "https://api.statuspage.io/v1/pages/{0}/incidents", self.pageId)
         logger.info("Creating incident: %s", incidentUrl)
-        r = requests.post(incidentUrl, headers=self.getHeaders(),
+        r = requests.post(incidentUrl, headers=self._getHeaders(),
                           data=json.dumps(payload))
         resultObject = r.json(object_hook=lambda d: SimpleNamespace(**d))
         logger.debug("Create Incident Response: %s", resultObject)
@@ -134,7 +137,7 @@ class StatusPageClient:
             "https://api.statuspage.io/v1/pages/{0}/incidents/{1}", self.pageId, incidentId)
         logger.info("Updating incident %s: %s", incidentUrl, incidentId)
         r = requests.patch(
-            incidentUrl, headers=self.getHeaders(), data=json.dumps(payload))
+            incidentUrl, headers=self._getHeaders(), data=json.dumps(payload))
         resultObject = r.json(object_hook=lambda d: SimpleNamespace(**d))
         logger.debug("Update Incident Response: %s", resultObject)
         return resultObject

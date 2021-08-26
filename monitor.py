@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 logger.info("Reading Configuration File")
 configData = configuration.readConfiguration(
-    "monitor.config.json", configuration.Settings())
+    "monitor.config.json", configuration.MonitorSettings())
 
 notifier = notifications.Notifier(configData.notification)
 statusPageOperator = statuspage_io.StatusPageOperator(configData.statusPage)

@@ -32,10 +32,12 @@ class IncidentResult:
     """
     incidentCreated: bool = False
     incidentResolved: bool = False
+    incident: Incident
 
     def __init__(self):
         self.incidentCreated = False
         self.incidentResolved = False
+        self.incident = Incident()
 
 
 class StatusResult:
@@ -158,7 +160,8 @@ class StatusPageOperator:
         ticket if one isn't already open for this component.  Future state will involve more detail around outage and maintenance
         '''
         incidentResult = IncidentResult()
-
+        incidentResult.incident = incidentDetails
+        
         associatedIncidents = self._getAssociatedIncident(componentId)
         asscIncidentCount = len(associatedIncidents)
         logger.info("Associated Incidents for %s: %d",
