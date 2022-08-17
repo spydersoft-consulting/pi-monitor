@@ -120,7 +120,7 @@ class StatusPageOperator:
         result = StatusResult()
         component = self.client.getComponent(componentId)
 
-        if (component.status != componentStatus):
+        if (component.status != componentStatus & component.status != 'under_maintenance'):
             result.statusChanged = True
             logger.info("Changing status from %s to %s",
                         component.status, componentStatus)
