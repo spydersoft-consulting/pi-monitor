@@ -7,11 +7,9 @@
         }
     ],
     "notification": {
-        "smtp_url": "smtp.gmail.com",
-        "smtp_port": 587,
-        "smtp_sender_id": "gmail_email",
-        "smtp_sender_pass": "gmail_pass",
-        "smsEmail": "email@vtext.com"
+        "smtp_sender_id": "",
+        "smtp_sender_apikey": "",
+        "smsEmail": ""
     },
     "statusPage": {
         "apiKey": "status_page_api_key",

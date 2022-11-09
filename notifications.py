@@ -1,5 +1,5 @@
-import sys
-import smtplib
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 import logging
 import configuration
 
@@ -38,20 +38,15 @@ class Notifier:
         """
         if (self.config.smsEmail != ""):
             logger.debug("Sending Notification to %s", self.config.smsEmail)
-            msg = EmailMessage()
-            msg.set_content(content)
-            msg['Subject'] = subject
-            msg['From'] = self.config.smtp_sender_id
-            msg['To'] = self.config.smsEmail
+            
+            message = Mail(
+            from_email=self.config.smtp_sender_id,
+            to_emails=self.config.smsEmail,
+            subject=subject,
+            plain_text_content=content,
+            html_content=content)
             try:
-                server = smtplib.SMTP(
-                    self.config.smtp_url, self.config.smtp_port)
-                server.starttls()
-                server.login(self.config.smtp_sender_id,
-                             self.config.smtp_sender_pass)
-                server.send_message(
-                    msg, self.config.smtp_sender_id, self.config.smsEmail)
-                server.quit()
-            except:
-                logger.error("Error sending notification: %s",
-                             sys.exc_info()[0])
+                sg = SendGridAPIClient(self.config.smtp_sender_apikey)
+                response = sg.send(message)
+            except Exception as e:
+                print(e.message)
