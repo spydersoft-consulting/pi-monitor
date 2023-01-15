@@ -1,8 +1,10 @@
-
 # -*- coding: utf-8 -*-
-"""Configuration Module
+"""
 
-This module provides a function for reading a JSON file into the provided Settings object.
+Module for reading configuration.
+
+This module provides a function for reading a JSON file into
+ the provided Settings objects.
 
 """
 
@@ -15,15 +17,18 @@ logger = logging.getLogger(__name__)
 
 
 class StatusPageComponentSettings:
-    """ Settings for StatusPage.io components
+    """Settings for StatusPage.io components.
 
-        Attributes:
-            componentId (str): The ID of the component in your statuspage.io page
+    Attributes:
+        componentId (str): The ID of the component in your statuspage.io page
     """
+
     componentId: str
 
 
 class Generic:
+    """Generic method for reading dictionary values."""
+
     @classmethod
     def from_dict(cls, dict):
         obj = cls()
@@ -32,18 +37,25 @@ class Generic:
 
 
 class HealthCheckSettings:
-    """Settings for a HealthCheck
+    """Settings for a HealthCheck.
 
-    A Healthcheck represents a simple request to the defined `url`. If a non-200 the request generates an exception or a non-200 response, the site is determined to be down.  
+    A Healthcheck represents a simple request to the defined `url`.
+     If a non-200 the request generates an exception or a non-200
+     response, the site is determined to be down.
 
-    If `statusPage` is defined, statuspage.io will be updated according to the following rules.
+    If `statusPage` is defined, statuspage.io will be updated
+     according to the following rules.
 
-    - If the site returns a 2xx response and statuspage.io lists the component as non-operational:
+    - If the site returns a 2xx response and statuspage.io lists
+     the component as non-operational:
         - The component's status will be set to operational
-        - Any open incidents associated with this component will be marked as resolved
-    - If the site returns a non-2xx response or an exception and statuspage.io lists the component as operational:
+        - Any open incidents associated with this component will
+         be marked as resolved
+    - If the site returns a non-2xx response or an exception and
+     statuspage.io lists the component as operational:
         - The component's status will be set to operational
-        - An incident will be opened using the `name` and associated with this component.
+        - An incident will be opened using the `name` and
+         associated with this component.
 
 
     Attributes:
@@ -51,18 +63,20 @@ class HealthCheckSettings:
         url (str): The url to be fetched as part of the check
         statusPage (StatusPageComponentSettings): Any StatusPage-related component settings
     """
+
     name: str
     url: str
     statusPage: StatusPageComponentSettings
 
 
 class StatusPageSettings:
-    """Settings for StatusPage.io
+    """Settings for StatusPage.io.
 
     Attributes:
         apiKey (str): The API Key to access statuspage.io
         pageId (str): Your PageId for statuspage.io
     """
+
     apiKey: str
     pageId: str
 
@@ -80,6 +94,7 @@ class NotificationSettings:
         smsEmail: The email to receive notifications
 
     """
+
     smtp_url: str
     smtp_port: int
     smtp_sender_id: str
@@ -97,6 +112,7 @@ class MonitorSettings:
         notification: The settings object for notifications
         statusPage: The settings object for StatusPage.io
     """
+
     statusChecks: List[HealthCheckSettings]
     notification: NotificationSettings
     statusPage: StatusPageSettings
@@ -105,9 +121,11 @@ class MonitorSettings:
         pass
 
 
-def readConfiguration(file: str = 'monitor.config.json', defaultSettings: MonitorSettings = {}) -> MonitorSettings:
+def readConfiguration(
+    file: str = "monitor.config.json", defaultSettings: MonitorSettings = {}
+) -> MonitorSettings:
     """Read Configuration file and return settings
-    
+
     Args:
         file: The file name to use for configuration.  The default value is `monitor.config.json`
         defaultSettings: A default instance of the settings to use if the file cannot be found.
@@ -117,7 +135,7 @@ def readConfiguration(file: str = 'monitor.config.json', defaultSettings: Monito
     """
     configPath = Path(file)
 
-    if (not configPath.exists()):
+    if not configPath.exists():
         logger.info("Configuration file not found: %s.  Using default", file)
         return defaultSettings
 

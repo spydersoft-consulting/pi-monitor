@@ -16,10 +16,11 @@ class Notifier:
     Attributes:
         config: An instance of [NotificationSettings][configuration.NotificationSettings]
     """
+
     config: configuration.NotificationSettings
 
     def __init__(self, notifyConfig: configuration.NotificationSettings) -> None:
-        """ Constructor
+        """Constructor
 
         Initialize the instance using the provided [NotificationSettings][configuration.NotificationSettings].
 
@@ -27,7 +28,7 @@ class Notifier:
         self.config = notifyConfig
 
     def notify(self, subject: str, content: str):
-        """ Send notification
+        """Send notification
 
         Build and send an email notificaiton using the provided parameters.
 
@@ -36,15 +37,16 @@ class Notifier:
             content: the email content.
 
         """
-        if (self.config.smsEmail != ""):
+        if self.config.smsEmail != "":
             logger.debug("Sending Notification to %s", self.config.smsEmail)
-            
+
             message = Mail(
-            from_email=self.config.smtp_sender_id,
-            to_emails=self.config.smsEmail,
-            subject=subject,
-            plain_text_content=content,
-            html_content=content)
+                from_email=self.config.smtp_sender_id,
+                to_emails=self.config.smsEmail,
+                subject=subject,
+                plain_text_content=content,
+                html_content=content,
+            )
             try:
                 sg = SendGridAPIClient(self.config.smtp_sender_apikey)
                 response = sg.send(message)

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class HttpGetResult:
     """HttpGetResult
-    
+
     Attributes:
         success: Whether or not the request was successful
         message: The error message from an unsuccessful request
@@ -20,12 +20,13 @@ class HttpGetResult:
         response: An object representing the response body converted as JSON
 
     """
+
     success: bool = True
-    message: str = ''
+    message: str = ""
     rawResponse: str
     response: any = {}
 
-    def __init__(self, success: bool, msg: str = ''):
+    def __init__(self, success: bool, msg: str = ""):
         self.success = success
         self.message = msg
 
@@ -35,7 +36,7 @@ class HealthCheckExecutor:
 
     The HealthCheckExecutor encapsulates the functionality to perform a health check on a site and properly notify users or update statuspage.io accordingly.
 
-    A Healthcheck represents a simple request to the defined `url`. If a non-200 the request generates an exception or a non-200 response, the site is determined to be down.  
+    A Healthcheck represents a simple request to the defined `url`. If a non-200 the request generates an exception or a non-200 response, the site is determined to be down.
 
     If `statuspage_operator` is present and the HealthCheckSettings have a componentId set, statuspage.io will be updated according to the following rules.
 
@@ -51,10 +52,15 @@ class HealthCheckExecutor:
         statuspage_operator: The name of the site being checked
         notifier: The url to be fetched as part of the check
     """
+
     statuspage_operator: statuspage_io.StatusPageOperator
     notifier: notifications.Notifier
 
-    def __init__(self, statusOperator: statuspage_io.StatusPageOperator, notifier: notifications.Notifier):
+    def __init__(
+        self,
+        statusOperator: statuspage_io.StatusPageOperator,
+        notifier: notifications.Notifier,
+    ):
         """Constructor
 
         Constructs an instance of the HealthCheckExecutor with the given [StatusPageOperator][statuspage_io.StatusPageOperator] and [Notifier][notifications.Notifier].
@@ -67,21 +73,21 @@ class HealthCheckExecutor:
         self.notifier = notifier
 
     def execute_health_check(self, checkSettings: configuration.HealthCheckSettings):
-        """ Execute a health check
+        """Execute a health check
 
         Executes a health check using the provided HealthCheckSettings.
 
         Args:
             checkSettings: An instance of [HealthCheckSettings][configuration.HealthCheckSettings]
         """
-        logger.info('Checking %s...', checkSettings.name)
+        logger.info("Checking %s...", checkSettings.name)
 
         sendNotification = False
         opLevel = OpLevel.Operational
 
         httpResult = self._get_http(checkSettings.url)
 
-        if (httpResult.success):
+        if httpResult.success:
             # Good Check
             logger.info("Status OK")
             opLevel = OpLevel.Operational
@@ -91,18 +97,20 @@ class HealthCheckExecutor:
             logger.warning(httpResult.message)
             sendNotification = True
 
-        if (checkSettings.statusPage and checkSettings.statusPage.componentId != ''):
+        if checkSettings.statusPage and checkSettings.statusPage.componentId != "":
             statusIoResult = self._updateStatusPage(checkSettings, opLevel)
-            sendNotification = statusIoResult.incidentResult.incidentCreated or statusIoResult.incidentResult.incidentResolved
+            sendNotification = (
+                statusIoResult.incidentResult.incidentCreated
+                or statusIoResult.incidentResult.incidentResolved
+            )
             notificationText = statusIoResult.incidentResult.incident.description
 
-
-        if (sendNotification):
+        if sendNotification:
             logger.info("Sending notification: %s", notificationText)
             self.notifier.notify(checkSettings.name, notificationText)
 
     def _get_http(self, url: str) -> HttpGetResult:
-        """ Retrieve data from the URL
+        """Retrieve data from the URL
 
         Attempt to get data from the provided URL
 
@@ -112,7 +120,7 @@ class HealthCheckExecutor:
         Returns:
             An [HttpGetResult][healthchecks.HttpGetResult]
         """
-        if (not url or url == ""):
+        if not url or url == "":
             result = HttpGetResult(False, "no url defined")
             return result
 
@@ -127,9 +135,9 @@ class HealthCheckExecutor:
         return result
 
     def _process_response(self, response: requests.Response) -> HttpGetResult:
-        """ Process the HTTP Requests response
+        """Process the HTTP Requests response
 
-        Convert the provided Response object from the requests module into an [HttpGetResult][healthchecks.HttpGetResult]. 
+        Convert the provided Response object from the requests module into an [HttpGetResult][healthchecks.HttpGetResult].
 
         Args:
             response: The [requests.Response] object from the HTTP operation
@@ -138,30 +146,36 @@ class HealthCheckExecutor:
             An [HttpGetResult][healthchecks.HttpGetResult]
         """
         result = HttpGetResult(response.status_code == 200)
-        if (not result.success):
-            logger.info("Request failed with Response Code %d: %s",
-                        response.status_code, response.text)
+        if not result.success:
+            logger.info(
+                "Request failed with Response Code %d: %s",
+                response.status_code,
+                response.text,
+            )
             result.message = str.format("{0} {1}", response.status_code, response.text)
             return result
 
         result.rawResponse = response.text
         try:
-            result.response = response.json(
-                object_hook=lambda d: SimpleNamespace(**d))
+            result.response = response.json(object_hook=lambda d: SimpleNamespace(**d))
         except:
             result.response = {}
         return result
 
-    def _updateStatusPage(self, checkSettings: configuration.HealthCheckSettings, opLevel: OpLevel) -> statuspage_io.StatusResult:
+    def _updateStatusPage(
+        self, checkSettings: configuration.HealthCheckSettings, opLevel: OpLevel
+    ) -> statuspage_io.StatusResult:
         incident = statuspage_io.Incident()
         incident.name = checkSettings.name
-        
+
         descriptionDict = {
-            OpLevel.Operational: 'Operating Normally',
-            OpLevel.Degraded: 'Service Degraded',
-            OpLevel.Partial_Outage: 'Partial Service Outage',
-            OpLevel.Full_Outage: 'Major Service Outage'
+            OpLevel.Operational: "Operating Normally",
+            OpLevel.Degraded: "Service Degraded",
+            OpLevel.Partial_Outage: "Partial Service Outage",
+            OpLevel.Full_Outage: "Major Service Outage",
         }
         incident.description = descriptionDict[opLevel]
 
-        return self.statuspage_operator.UpdateComponentStatus(checkSettings.statusPage.componentId, opLevel, incident)
+        return self.statuspage_operator.UpdateComponentStatus(
+            checkSettings.statusPage.componentId, opLevel, incident
+        )
