@@ -59,3 +59,5 @@ with ThreadPoolExecutor(max_workers=4) as executor:
         ): statusCheck
         for statusCheck in configData.statusChecks
     }
+
+
