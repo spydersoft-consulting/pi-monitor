@@ -6,7 +6,14 @@ import logging.handlers
 import coloredlogs
 import argparse
 from .healthchecks import HealthCheckExecutor
-from .configuration import read_configuration, MonitorSettings
+from .configuration import (
+    read_configuration,
+    MonitorSettings,
+    NotificationSettings,
+    StatusPageSettings,
+    HealthCheckSettings,
+    StatusPageComponentSettings
+)
 from .notifications import Notifier
 from .statuspage_io import StatusPageOperator
 from concurrent.futures import ThreadPoolExecutor
@@ -61,7 +68,7 @@ def main():
     config_data = read_configuration(args.configfile, MonitorSettings())
 
     notifier = Notifier(config_data.notification)
-    status_page_operator = StatusPageOperator(config_data.statusPage)
+    status_page_operator = StatusPageOperator(config_data.status_page)
     healtch_check_executor = HealthCheckExecutor(status_page_operator, notifier)
 
     with ThreadPoolExecutor(max_workers=4) as executor:

@@ -92,7 +92,7 @@ class NotificationSettings:
         smtp_url (str): The URL of the SMTP host
         smtp_port (int): The SMTP Port to use
         smtp_sender_id (str): The SMTP user
-        smtp_sender_pass (str): The SMTP user's password
+        smtp_sender_apikey (str): The SMTP user's password
         sms_email: The email to receive notifications
 
     """
@@ -100,7 +100,7 @@ class NotificationSettings:
     smtp_url: str
     smtp_port: int
     smtp_sender_id: str
-    smpt_sender_pass: str
+    smtp_sender_apikey: str
     sms_email: str
 
 
@@ -122,7 +122,7 @@ class MonitorSettings:
 
 
 def read_configuration(
-    file: str = "monitor.config.json", default_settings: MonitorSettings = {}
+    file: str, default_settings: MonitorSettings = {}
 ) -> MonitorSettings:
     """Read Configuration file and return settings
 
@@ -139,7 +139,7 @@ def read_configuration(
     config_path = Path(file)
 
     if not config_path.exists():
-        logger.info("Configuration file not found: %s.  Using default", file)
+        logger.error("Configuration file not found: %s.  Using default", file)
         return default_settings
 
     config_data = config_path.read_text()

@@ -86,7 +86,7 @@ class StatusPageOperator:
 
         """
         self.config = status_page_config
-        self.client = StatusPageClient(self.config.apiKey, self.config.pageId)
+        self.client = StatusPageClient(self.config.api_key, self.config.page_id)
 
     def is_configured(self) -> bool:
         """Validate configuration data
@@ -94,7 +94,7 @@ class StatusPageOperator:
         Returns:
             True if the operator has a valid configuration, False otherwise.
         """
-        return self.config.apiKey != ""
+        return self.config.api_key != ""
 
     def update_component_status(
         self, component_id: str, op_level: OpLevel, incident_details: Incident = {}

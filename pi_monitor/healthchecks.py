@@ -103,7 +103,7 @@ class HealthCheckExecutor:
             logger.warning(http_result.message)
             send_notification = True
 
-        if check_settings.statusPage and check_settings.statusPage.componentId != "":
+        if check_settings.status_page and check_settings.status_page.componentId != "":
             status_result = self._update_status_page(check_settings, op_level)
             send_notification = (
                 status_result.incident_result.incident_created
@@ -189,5 +189,5 @@ class HealthCheckExecutor:
         }
         incident.description = description_dict[op_level]
         return self.statuspage_operator.update_component_status(
-            check_settings.statusPage.componentId, op_level, incident
+            check_settings.status_page.componentId, op_level, incident
         )

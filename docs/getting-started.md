@@ -43,12 +43,12 @@ pip3 install pyyaml coloredlogs
         "smtp_url": "smtp.gmail.com",
         "smtp_port": 587,
         "smtp_sender_id": "gmail_email",
-        "smtp_sender_pass": "gmail_pass",
+        "smtp_sender_apikey": "gmail_pass",
         "sms_email": "email@vtext.com"
     },
-    "statusPage": {
-        "apiKey": "status_page_api_key",
-        "pageId": "status_page_page_id"
+    "status_page": {
+        "api_key": "status_page_api_key",
+        "page_id": "status_page_page_id"
     }
 }
 ```
