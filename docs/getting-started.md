@@ -32,7 +32,7 @@ pip3 install pyyaml coloredlogs
 2. Edit `monitor.config.json`.  Full documentation can be found in [Configuration][configuration]
 ``` json
 {
-    "statusChecks": [
+    "status_checks": [
         {
             "name": "Site (Prod)",
             "url": "https://your.domain.com",
@@ -44,7 +44,7 @@ pip3 install pyyaml coloredlogs
         "smtp_port": 587,
         "smtp_sender_id": "gmail_email",
         "smtp_sender_pass": "gmail_pass",
-        "smsEmail": "email@vtext.com"
+        "sms_email": "email@vtext.com"
     },
     "statusPage": {
         "apiKey": "status_page_api_key",

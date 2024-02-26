@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class OpLevel(Enum):
     """OpLevel Enum"""
 

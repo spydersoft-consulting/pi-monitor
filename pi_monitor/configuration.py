@@ -20,10 +20,10 @@ class StatusPageComponentSettings:
     """Settings for StatusPage.io components.
 
     Attributes:
-        componentId (str): The ID of the component in your statuspage.io page
+        component_id (str): The ID of the component in your statuspage.io page
     """
 
-    componentId: str
+    component_id: str
 
 
 class Generic:
@@ -43,7 +43,7 @@ class HealthCheckSettings:
      If a non-200 the request generates an exception or a non-200
      response, the site is determined to be down.
 
-    If `statusPage` is defined, statuspage.io will be updated
+    If `status_page` is defined, statuspage.io will be updated
      according to the following rules.
 
     - If the site returns a 2xx response and statuspage.io lists
@@ -61,37 +61,39 @@ class HealthCheckSettings:
     Attributes:
         name (str): The name of the site being checked
         url (str): The url to be fetched as part of the check
-        statusPage (StatusPageComponentSettings): Any StatusPage-related component settings
+        status_page (StatusPageComponentSettings): Any StatusPage-related
+        component settings
     """
 
     name: str
     url: str
-    statusPage: StatusPageComponentSettings
+    status_page: StatusPageComponentSettings
 
 
 class StatusPageSettings:
     """Settings for StatusPage.io.
 
     Attributes:
-        apiKey (str): The API Key to access statuspage.io
-        pageId (str): Your PageId for statuspage.io
+        api_key (str): The API Key to access statuspage.io
+        page_id (str): Your PageId for statuspage.io
     """
 
-    apiKey: str
-    pageId: str
+    api_key: str
+    page_id: str
 
 
 class NotificationSettings:
     """Notification Settings
 
-    This class represents settings for notifications.  If you are using Gmail to send, you need to set your account's `Allow Less Secure Apps` setting to `true`
+    This class represents settings for notifications.  If you are using Gmail to send,
+    you need to set your account's `Allow Less Secure Apps` setting to `true`
 
     Attributes:
         smtp_url (str): The URL of the SMTP host
         smtp_port (int): The SMTP Port to use
         smtp_sender_id (str): The SMTP user
-        smtp_sender_Pass (str): The SMTP user's password
-        smsEmail: The email to receive notifications
+        smtp_sender_pass (str): The SMTP user's password
+        sms_email: The email to receive notifications
 
     """
 
@@ -99,45 +101,46 @@ class NotificationSettings:
     smtp_port: int
     smtp_sender_id: str
     smpt_sender_pass: str
-    smsEmail: str
+    sms_email: str
 
 
 class MonitorSettings:
     """MonitorSettings
 
-    This class represents the entire structure of the configuration file (`monitor.config.json` by default).
+    This class represents the entire structure of the configuration
+    file (`monitor.config.json` by default).
 
     Attributes:
-        statusChecks: The collection of statusCheck settings
+        status_checks: The collection of statusCheck settings
         notification: The settings object for notifications
-        statusPage: The settings object for StatusPage.io
+        status_page: The settings object for StatusPage.io
     """
 
-    statusChecks: List[HealthCheckSettings]
+    status_checks: List[HealthCheckSettings]
     notification: NotificationSettings
-    statusPage: StatusPageSettings
-
-    def __init__(self):
-        pass
+    status_page: StatusPageSettings
 
 
-def readConfiguration(
-    file: str = "monitor.config.json", defaultSettings: MonitorSettings = {}
+def read_configuration(
+    file: str = "monitor.config.json", default_settings: MonitorSettings = {}
 ) -> MonitorSettings:
     """Read Configuration file and return settings
 
     Args:
-        file: The file name to use for configuration.  The default value is `monitor.config.json`
-        defaultSettings: A default instance of the settings to use if the file cannot be found.
+        file: The file name to use for configuration.
+                The default value is `monitor.config.json`
+        default_settings: A default instance of the settings to use if the file
+                            cannot be found.
 
     Returns:
-        MonitorSettings: A MonitorSettings object populated from the given file, or an empty Settings object.
+        MonitorSettings: A MonitorSettings object populated from the given file,
+                        or an empty Settings object.
     """
-    configPath = Path(file)
+    config_path = Path(file)
 
-    if not configPath.exists():
+    if not config_path.exists():
         logger.info("Configuration file not found: %s.  Using default", file)
-        return defaultSettings
+        return default_settings
 
-    configDataRaw = configPath.read_text()
-    return json.loads(configDataRaw, object_hook=Generic.from_dict)
+    config_data = config_path.read_text()
+    return json.loads(config_data, object_hook=Generic.from_dict)

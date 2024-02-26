@@ -4,11 +4,21 @@ import logging.config
 import logging
 import logging.handlers
 import coloredlogs
-import healthchecks
-import configuration
-import notifications
-import statuspage_io
+import argparse
+from .healthchecks import HealthCheckExecutor
+from .configuration import read_configuration, MonitorSettings
+from .notifications import Notifier
+from .statuspage_io import StatusPageOperator
 from concurrent.futures import ThreadPoolExecutor
+
+
+def get_parser():
+    PARSER = argparse.ArgumentParser()
+    PARSER.add_argument(
+        "-c", "--configfile", help="Configuration File", default="monitor.config.json"
+    )
+
+    return PARSER
 
 
 def setup_logging(
@@ -40,24 +50,24 @@ def setup_logging(
         print("Failed to load configuration file. Using default configs")
 
 
-setup_logging()
-logger = logging.getLogger(__name__)
+def main():
+    setup_logging()
+    logger = logging.getLogger(__name__)
 
-logger.info("Reading Configuration File")
-configData = configuration.readConfiguration(
-    "monitor.config.json", configuration.MonitorSettings()
-)
+    parser = get_parser()
+    args = parser.parse_args()
 
-notifier = notifications.Notifier(configData.notification)
-statusPageOperator = statuspage_io.StatusPageOperator(configData.statusPage)
-heathCheckExecutor = healthchecks.HealthCheckExecutor(statusPageOperator, notifier)
+    logger.info("Reading Configuration File")
+    config_data = read_configuration(args.configfile, MonitorSettings())
 
-with ThreadPoolExecutor(max_workers=4) as executor:
-    tasks = {
-        executor.submit(
-            heathCheckExecutor.execute_health_check, statusCheck
-        ): statusCheck
-        for statusCheck in configData.statusChecks
-    }
+    notifier = Notifier(config_data.notification)
+    status_page_operator = StatusPageOperator(config_data.statusPage)
+    healtch_check_executor = HealthCheckExecutor(status_page_operator, notifier)
 
-
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        {
+            executor.submit(
+                healtch_check_executor.execute_health_check, statusCheck
+            ): statusCheck
+            for statusCheck in config_data.status_checks
+        }

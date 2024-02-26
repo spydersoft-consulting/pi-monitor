@@ -1,5 +1,5 @@
 {
-    "statusChecks": [
+    "status_checks": [
         {
             "name": "Site (Prod)",
             "url": "https://your.domain.com",
@@ -9,7 +9,7 @@
     "notification": {
         "smtp_sender_id": "",
         "smtp_sender_apikey": "",
-        "smsEmail": ""
+        "sms_email": ""
     },
     "statusPage": {
         "apiKey": "status_page_api_key",
