@@ -1,2 +1,3 @@
 # Enums
-::: enums
+
+::: pi_monitor.enums

@@ -5,6 +5,8 @@ site_url: https://spyder007.github.io/pi-monitoring/
 nav:
   - Home: 'index.md'
   - 'getting-started.md'
+  - Contribute: 'contributing.md'
+  - Changes: 'CHANGELOG.md'
   - 'API Documentation':
     - 'api/configuration-reference.md'
     - 'api/healthchecks-reference.md'

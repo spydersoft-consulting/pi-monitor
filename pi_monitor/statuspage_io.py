@@ -51,7 +51,8 @@ class StatusResult:
     Attributes:
         status_changed: True if the status has changed from the previous check,
                         false otherwise.
-        incident_result: An instance of [IncidentResult][statuspage_io.IncidentResult].
+        incident_result: An instance of
+                        [IncidentResult][pi_monitor.statuspage_io.IncidentResult].
 
     """
 
@@ -68,10 +69,11 @@ class StatusPageOperator:
     This class represents information about actions taken during a check and update.
 
     Attributes:
-        config: An instance of [StatusPageSettings][StatusPageSettings] which contains
-                settings for Statuspage.io communication
-        client: An instance of [StatusPageClient][StatusPageClient], built from the
-                configuration values provided.
+        config: An instance of [StatusPageSettings][pi_monitor.StatusPageSettings]
+                which contains settings for Statuspage.io communication
+        client: An instance of
+                [StatusPageClient][pi_monitor.statuspage_io_client.StatusPageClient],
+                built from the configuration values provided.
 
     """
 
@@ -82,7 +84,7 @@ class StatusPageOperator:
         """Constructor
 
         Initialize the instance using the provided
-        [StatusPageSettings][StatusPageSettings].
+        [StatusPageSettings][pi_monitor.StatusPageSettings].
 
         """
         self.config = status_page_config
@@ -103,9 +105,9 @@ class StatusPageOperator:
 
         Using the provided OpLevel, determine the component's statuspage.io status.
 
-        If the incoming `op_level` is [Operational][enums.OpLevel] and the statuspage.io
-        status is not, the component's status will be changed to `operational`, and
-        any open incidents for that component will be resolved.
+        If the incoming `op_level` is [Operational][pi_monitor.enums.OpLevel] and the
+        statuspage.io status is not, the component's status will be changed to
+        `operational`, and any open incidents for that component will be resolved.
 
         If the incoming `op_level` is any other value and the statuspage.io status is
         operational, the component's status will be changed to `major_outage` and an
@@ -115,12 +117,13 @@ class StatusPageOperator:
         Args:
             component_id: The component ID to check
             op_level: The current OpLevel for the provided component
-            incident_details: An instance of [Incident][statuspage_io.Incident] which
-                                has the details of the incident to be created,
+            incident_details: An instance of
+                              [Incident][pi_monitor.statuspage_io.Incident]
+                              which has the details of the incident to be created,
                                 if necessary.
 
         Returns:
-            An instance of [StatusResult][statuspage_io.StatusResult]
+            An instance of [StatusResult][pi_monitor.statuspage_io.StatusResult]
         """
 
         if op_level == OpLevel.Operational:

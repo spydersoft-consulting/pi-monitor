@@ -44,7 +44,7 @@ class HealthCheckExecutor:
     set, statuspage.io will be updated according to the following rules.
 
     - If the site returns a 2xx response and statuspage.io lists the component as
-    non-operational:
+        non-operational:
         - The component's status will be set to operational
         - Any open incidents associated with this component will be marked as resolved
     - If the site returns a non-2xx response or an exception and statuspage.io lists
@@ -70,7 +70,8 @@ class HealthCheckExecutor:
         """Constructor
 
         Constructs an instance of the HealthCheckExecutor with the given
-        [StatusPageOperator][StatusPageOperator] and [Notifier][Notifier].
+        [StatusPageOperator][pi_monitor.StatusPageOperator] and
+        [Notifier][pi_monitor.Notifier].
 
         Attributes:
             statuspage_operator: The name of the site being checked
@@ -85,7 +86,8 @@ class HealthCheckExecutor:
         Executes a health check using the provided HealthCheckSettings.
 
         Args:
-            check_settings: An instance of [HealthCheckSettings][HealthCheckSettings]
+            check_settings: An instance of
+                [HealthCheckSettings][pi_monitor.HealthCheckSettings]
         """
         logger.info("Checking %s...", check_settings.name)
 
@@ -124,7 +126,7 @@ class HealthCheckExecutor:
             url: The url to be retrieved
 
         Returns:
-            An [HttpGetResult][healthchecks.HttpGetResult]
+            An [HttpGetResult][pi_monitor.HttpGetResult]
         """
         if not url or url == "":
             result = HttpGetResult(False, "no url defined")

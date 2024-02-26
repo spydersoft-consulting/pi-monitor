@@ -12,7 +12,7 @@ class Notifier:
     The Notifier class encapsulates the functionality to send email notifications.
 
     Attributes:
-        config: An instance of [NotificationSettings][NotificationSettings]
+        config: An instance of [NotificationSettings][pi_monitor.NotificationSettings]
     """
 
     config: NotificationSettings
@@ -21,7 +21,7 @@ class Notifier:
         """Constructor
 
         Initialize the instance using the provided
-        [NotificationSettings][NotificationSettings].
+        [NotificationSettings][pi_monitor.NotificationSettings].
 
         """
         self.config = notify_config

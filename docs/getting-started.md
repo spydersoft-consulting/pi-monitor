@@ -1,35 +1,35 @@
 # Getting Started
 
-To get a local copy up and running follow these simple steps.
+## Requirements
 
-## Prerequisites
-
-* [Python](https://www.python.org/)
-* [PyYaml]()
-* [ColoredLogs]()
-
-These scripts were written and tested on Python 3.7.3 (Raspbian) and 3.9.1 (Windows).  Install the dependencies as follows:
-```sh
-pip3 install pyyaml coloredlogs
-```
+* Python 3.7+
+* PIP
 
 ## Installation
 
-1. Clone the repo
-   ```sh
-   git clone https://github.com/spyder007/pi-monitoring.git
-   ```
-2. Copy `monitor.config.json.template` to `monitor.config.json` and modify the settings within those config files accordingly
+You can install this tool using `pip`:
 
-3. Execute `monitor.py`
-   ```sh
-   python monitor.py
-   ```
+```bash
+pip install pi-monitor
+```
+
+## Usage
+
+### Basic
+
+The minimal execution is to run `pi-monitor` in a directory where there is a file called `monitor.config.json` formatted as described in the [Configuration](#configuration) section.
+
+To specify a configuration file, use the `-c` or `--configfile` command line flag.
+
+```sh
+pi-monitor --configfile my.config.json
+```
 
 ## Configuration
 
-1. Copy `monitor.config.json.template` to `monitor.config.json`.
-2. Edit `monitor.config.json`.  Full documentation can be found in [Configuration][configuration]
+1. Create a file called `monitor.config.json`.
+2. Edit `monitor.config.json`.
+
 ``` json
 {
     "status_checks": [

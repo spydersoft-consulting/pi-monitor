@@ -1,2 +1,3 @@
 # HealthChecks
-::: healthchecks
+
+::: pi_monitor.healthchecks

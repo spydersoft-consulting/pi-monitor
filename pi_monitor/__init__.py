@@ -12,7 +12,7 @@ from .configuration import (
     NotificationSettings,
     StatusPageSettings,
     HealthCheckSettings,
-    StatusPageComponentSettings
+    StatusPageComponentSettings,
 )
 from .notifications import Notifier
 from .statuspage_io import StatusPageOperator

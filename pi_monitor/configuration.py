@@ -62,7 +62,7 @@ class HealthCheckSettings:
         name (str): The name of the site being checked
         url (str): The url to be fetched as part of the check
         status_page (StatusPageComponentSettings): Any StatusPage-related
-        component settings
+            component settings
     """
 
     name: str

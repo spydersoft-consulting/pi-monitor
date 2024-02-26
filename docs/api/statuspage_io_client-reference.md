@@ -1,2 +1,3 @@
 # StatusPage.io Client
-::: statuspage_io_client
+
+::: pi_monitor.statuspage_io_client

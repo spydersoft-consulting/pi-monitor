@@ -70,8 +70,8 @@ class StatusPageClient:
 
         Returns:
             A SimpleNamespace object created from the JSON return.  Object
-            representation can be found in the
-            [docs](https://developer.statuspage.io/#operation/getPagesPageIdComponentsComponentId).
+                representation can be found in the
+                [docs](https://developer.statuspage.io/#operation/getPagesPageIdComponentsComponentId).
 
         """
         component_url = str.format(
@@ -96,13 +96,13 @@ class StatusPageClient:
         Args:
             component_id: The id of the component to update.
             payload: An object representing the JSON payload.  Valid object
-            representation can be found in the
-            [docs](https://developer.statuspage.io/#operation/putPagesPageIdComponentsComponentId).
+                representation can be found in the
+                [docs](https://developer.statuspage.io/#operation/putPagesPageIdComponentsComponentId).
 
         Returns:
             A SimpleNamespace object created from the JSON return.  Object
-            representation can be found in the
-            [docs](https://developer.statuspage.io/#operation/putPagesPageIdComponentsComponentId).
+                representation can be found in the
+                [docs](https://developer.statuspage.io/#operation/putPagesPageIdComponentsComponentId).
 
         """
         component_url = str.format(
@@ -123,8 +123,8 @@ class StatusPageClient:
 
         Returns:
             A SimpleNamespace object created from the JSON return.  Object
-            representation can be found in the
-            [docs](https://developer.statuspage.io/#operation/getPagesPageIdIncidentsUnresolved).
+                representation can be found in the
+                [docs](https://developer.statuspage.io/#operation/getPagesPageIdIncidentsUnresolved).
 
         """
         logger.info("Retrieving unresolved incidents")
@@ -147,13 +147,13 @@ class StatusPageClient:
 
         Args:
             payload: An object representing the JSON payload.  Valid object
-            representation can be found in the
-            [docs](https://developer.statuspage.io/#operation/postPagesPageIdIncidents).
+                representation can be found in the
+                [docs](https://developer.statuspage.io/#operation/postPagesPageIdIncidents).
 
         Returns:
             A SimpleNamespace object created from the JSON return.  Object
-            representation can be found in the
-            [docs](https://developer.statuspage.io/#operation/postPagesPageIdIncidents).
+                representation can be found in the
+                [docs](https://developer.statuspage.io/#operation/postPagesPageIdIncidents).
 
         """
         incident_url = str.format(
@@ -176,13 +176,13 @@ class StatusPageClient:
         Args:
             incident_id: The id of the incident to update.
             payload: An object representing the JSON payload.  Valid object
-            representation can be found in the
-            [docs](https://developer.statuspage.io/#operation/patchPagesPageIdIncidentsIncidentId).
+                representation can be found in the
+                [docs](https://developer.statuspage.io/#operation/patchPagesPageIdIncidentsIncidentId).
 
         Returns:
             A SimpleNamespace object created from the JSON return.  Object
-            representation can be found in the
-            [docs](https://developer.statuspage.io/#operation/patchPagesPageIdIncidentsIncidentId).
+                representation can be found in the
+                [docs](https://developer.statuspage.io/#operation/patchPagesPageIdIncidentsIncidentId).
 
         """
         incident_url = str.format(
