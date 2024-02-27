@@ -10,7 +10,7 @@
 You can install this tool using `pip`:
 
 ```bash
-pip install pi-monitor
+pip install spydersoft-pi-monitor
 ```
 
 ## Usage

@@ -40,7 +40,7 @@ class HealthCheckExecutor:
     request generates an exception or a non-200 response, the site is determined to
     be down.
 
-    If `statuspage_operator` is present and the HealthCheckSettings have a componentId
+    If `statuspage_operator` is present and the HealthCheckSettings have a component_id
     set, statuspage.io will be updated according to the following rules.
 
     - If the site returns a 2xx response and statuspage.io lists the component as
@@ -105,7 +105,7 @@ class HealthCheckExecutor:
             logger.warning(http_result.message)
             send_notification = True
 
-        if check_settings.status_page and check_settings.status_page.componentId != "":
+        if check_settings.status_page and check_settings.status_page.component_id != "":
             status_result = self._update_status_page(check_settings, op_level)
             send_notification = (
                 status_result.incident_result.incident_created
@@ -191,5 +191,5 @@ class HealthCheckExecutor:
         }
         incident.description = description_dict[op_level]
         return self.statuspage_operator.update_component_status(
-            check_settings.status_page.componentId, op_level, incident
+            check_settings.status_page.component_id, op_level, incident
         )
