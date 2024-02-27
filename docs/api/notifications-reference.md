@@ -1,2 +1,3 @@
 # Notifications
-::: notifications
+
+::: pi_monitor.notifications

@@ -1,2 +1,3 @@
 # Configuration
-::: configuration
+
+::: pi_monitor.configuration

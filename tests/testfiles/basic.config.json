@@ -1,0 +1,18 @@
+{
+    "status_checks": [
+        {
+            "name": "My Site",
+            "url": "https://your.domain.com",
+            "statusPageComponentId": "12345"
+        }
+    ],
+    "notification": {
+        "smtp_sender_id": "smtp_sender_id",
+        "smtp_sender_apikey": "smtp_sender_apikey",
+        "sms_email": "sms_email"
+    },
+    "status_page": {
+        "api_key": "api_key",
+        "page_id": "page_id"
+    }
+}
