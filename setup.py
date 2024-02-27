@@ -14,12 +14,12 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="pi-monitor",
+    name="spydersoft-pi-monitor",
     version=version_name,
     description="Simple Python Website Monitoring",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="Matt Gerega",
+    author="Spydersoft Consulting",
     url="https://github.com/spydersoft-consulting/md_to_conf",
     classifiers=["Programming Language :: Python :: 3 :: Only"],
     py_modules=["pi_monitor"],
