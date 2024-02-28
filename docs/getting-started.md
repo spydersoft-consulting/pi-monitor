@@ -10,7 +10,11 @@
 You can install this tool using `pip`:
 
 ```bash
+# If Python3 is your default
 pip install spydersoft-pi-monitor
+
+# On Raspberry Pi, or where you have both Python 2 and 3 installed
+pip3 install spydersoft-pi-monitor
 ```
 
 ## Usage

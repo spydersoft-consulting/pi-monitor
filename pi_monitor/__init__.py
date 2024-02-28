@@ -5,7 +5,7 @@ import logging
 import logging.handlers
 import coloredlogs
 import argparse
-from .healthchecks import HealthCheckExecutor
+from .healthchecks import HealthCheckExecutor, HttpGetResult
 from .configuration import (
     read_configuration,
     MonitorSettings,
@@ -16,6 +16,7 @@ from .configuration import (
 )
 from .notifications import Notifier
 from .statuspage_io import StatusPageOperator
+from .statuspage_io_client import StatusPageClient
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -48,13 +49,13 @@ def setup_logging(
                 coloredlogs.install()
             except Exception as e:
                 print(e)
-                print("Error in Logging Configuration. Using default configs")
+                print("Error in Logging Configuration. Using default configuration.")
                 logging.basicConfig(level=default_level)
                 coloredlogs.install(level=default_level)
     else:
         logging.basicConfig(level=default_level)
         coloredlogs.install(level=default_level)
-        print("Failed to load configuration file. Using default configs")
+        print(f"File {default_path} not found. Using default logging configuration.")
 
 
 def main():
