@@ -16,7 +16,7 @@ from .configuration import (
     StatusPageComponentSettings,
 )
 from .notifications import Notifier
-from .statuspage_io import StatusPageOperator, Incident, StatusResult
+from .statuspage_io import StatusPageOperator, Incident, StatusResult, IncidentResult
 from .statuspage_io_client import StatusPageClient
 from concurrent.futures import ThreadPoolExecutor
 
