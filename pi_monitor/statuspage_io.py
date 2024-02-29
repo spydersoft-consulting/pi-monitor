@@ -87,6 +87,9 @@ class StatusPageOperator:
         [StatusPageSettings][pi_monitor.StatusPageSettings].
 
         """
+        if status_page_config is None:
+            raise ValueError("No configuration provided")
+
         self.config = status_page_config
         self.client = StatusPageClient(self.config.api_key, self.config.page_id)
 
@@ -131,15 +134,6 @@ class StatusPageOperator:
         else:
             component_status = "major_outage"
 
-        if component_status not in self.client.component_status_list:
-            raise ValueError(
-                str.format(
-                    "Invalid status '{0}'.  Valid values are {1}",
-                    component_status,
-                    self.client.component_status_list,
-                )
-            )
-
         result = StatusResult()
         component = self.client.get_component(component_id)
         if component is None:
@@ -162,12 +156,6 @@ class StatusPageOperator:
         return result
 
     def _update_component_status(self, component_id, new_component_status):
-        if new_component_status not in self.client.component_status_list:
-            raise ValueError(
-                f"Invalid status '{new_component_status}'."
-                f"Valid values are {self.client.component_status_list}"
-            )
-
         logger.debug(
             "Setting component status to %s: %s", new_component_status, component_id
         )

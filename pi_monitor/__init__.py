@@ -5,6 +5,7 @@ import logging
 import logging.handlers
 import coloredlogs
 import argparse
+from .enums import OpLevel
 from .healthchecks import HealthCheckExecutor, HttpGetResult
 from .configuration import (
     read_configuration,
@@ -15,7 +16,7 @@ from .configuration import (
     StatusPageComponentSettings,
 )
 from .notifications import Notifier
-from .statuspage_io import StatusPageOperator
+from .statuspage_io import StatusPageOperator, Incident, StatusResult
 from .statuspage_io_client import StatusPageClient
 from concurrent.futures import ThreadPoolExecutor
 
