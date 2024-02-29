@@ -27,6 +27,21 @@ def test_operator(test_settings):
     return StatusPageOperator(test_settings)
 
 
+@pytest.fixture
+def test_incident():
+    incident = Incident()
+    incident.name = "Test Incident"
+
+    description_dict = {
+        OpLevel.Operational: "Operating Normally",
+        OpLevel.Degraded: "Service Degraded",
+        OpLevel.Partial_Outage: "Partial Service Outage",
+        OpLevel.Full_Outage: "Major Service Outage",
+    }
+    incident.description = description_dict[OpLevel.Full_Outage]
+    return incident
+
+
 def test_no_config():
     operator: StatusPageOperator = None
     with pytest.raises(ValueError) as e:
@@ -96,22 +111,14 @@ def test_update_component_status_to_outage(
     create_incident_mock,
     update_incident_mock,
     test_operator,
+    test_incident,
     caplog,
 ):
     component_id = "component-id"
-    incident = Incident()
-    incident.name = "Test Incident"
 
-    description_dict = {
-        OpLevel.Operational: "Operating Normally",
-        OpLevel.Degraded: "Service Degraded",
-        OpLevel.Partial_Outage: "Partial Service Outage",
-        OpLevel.Full_Outage: "Major Service Outage",
-    }
-    incident.description = description_dict[OpLevel.Full_Outage]
     with caplog.at_level(logging.WARNING):
         result = test_operator.update_component_status(
-            component_id, OpLevel.Full_Outage, incident
+            component_id, OpLevel.Full_Outage, test_incident
         )
 
     assert get_mock.called
@@ -121,7 +128,9 @@ def test_update_component_status_to_outage(
     assert unresolved_incident_mock.called
 
     assert create_incident_mock.called
-    assert create_incident_mock.call_args[0][0]["incident"]["name"] == incident.name
+    assert (
+        create_incident_mock.call_args[0][0]["incident"]["name"] == test_incident.name
+    )
     assert create_incident_mock.call_args[0][0]["incident"]["status"] == "investigating"
 
     assert update_incident_mock.called is False
@@ -143,22 +152,13 @@ def test_update_component_status_to_outage_component_failed(
     create_incident_mock,
     update_incident_mock,
     test_operator,
+    test_incident,
     caplog,
 ):
     component_id = "component-id"
-    incident = Incident()
-    incident.name = "Test Incident"
-
-    description_dict = {
-        OpLevel.Operational: "Operating Normally",
-        OpLevel.Degraded: "Service Degraded",
-        OpLevel.Partial_Outage: "Partial Service Outage",
-        OpLevel.Full_Outage: "Major Service Outage",
-    }
-    incident.description = description_dict[OpLevel.Full_Outage]
     with caplog.at_level(logging.WARNING):
         result = test_operator.update_component_status(
-            component_id, OpLevel.Full_Outage, incident
+            component_id, OpLevel.Full_Outage, test_incident
         )
 
     assert get_mock.called
@@ -168,7 +168,9 @@ def test_update_component_status_to_outage_component_failed(
     assert unresolved_incident_mock.called
 
     assert create_incident_mock.called
-    assert create_incident_mock.call_args[0][0]["incident"]["name"] == incident.name
+    assert (
+        create_incident_mock.call_args[0][0]["incident"]["name"] == test_incident.name
+    )
     assert create_incident_mock.call_args[0][0]["incident"]["status"] == "investigating"
 
     assert update_incident_mock.called is False
@@ -200,19 +202,9 @@ def test_update_component_status_no_change_outage(
     caplog,
 ):
     component_id = "component-id"
-    incident = Incident()
-    incident.name = "Test Incident"
-
-    description_dict = {
-        OpLevel.Operational: "Operating Normally",
-        OpLevel.Degraded: "Service Degraded",
-        OpLevel.Partial_Outage: "Partial Service Outage",
-        OpLevel.Full_Outage: "Major Service Outage",
-    }
-    incident.description = description_dict[OpLevel.Full_Outage]
     with caplog.at_level(logging.WARNING):
         result = test_operator.update_component_status(
-            component_id, OpLevel.Full_Outage, incident
+            component_id, OpLevel.Full_Outage, test_incident
         )
 
     assert get_mock.called
@@ -246,19 +238,9 @@ def test_update_component_status_operational(
     caplog,
 ):
     component_id = "component-id"
-    incident = Incident()
-    incident.name = "Test Incident"
-
-    description_dict = {
-        OpLevel.Operational: "Operating Normally",
-        OpLevel.Degraded: "Service Degraded",
-        OpLevel.Partial_Outage: "Partial Service Outage",
-        OpLevel.Full_Outage: "Major Service Outage",
-    }
-    incident.description = description_dict[OpLevel.Full_Outage]
     with caplog.at_level(logging.WARNING):
         result = test_operator.update_component_status(
-            component_id, OpLevel.Operational, incident
+            component_id, OpLevel.Operational, test_incident
         )
 
     assert get_mock.called
