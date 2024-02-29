@@ -1,6 +1,5 @@
 import logging
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
 from types import SimpleNamespace
 from pi_monitor import Notifier, NotificationSettings
 from unittest.mock import patch
@@ -65,7 +64,7 @@ def test_email_exception(sendmail_send_mock, caplog):
     notifier: Notifier = Notifier(settings)
     with caplog.at_level(logging.ERROR):
         result = notifier.notify("Test", "Test")
-    
+
     assert sendmail_send_mock.called
     assert result is False
     assert caplog.records[0].message.startswith("Error sending mail:")
