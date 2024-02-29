@@ -272,3 +272,66 @@ def test_create_incident_exception(caplog, requests_mock, test_statuspage_client
     assert caplog.records[0].message.startswith(
         test_statuspage_client.CLIENT_ERROR_MESSAGE
     )
+
+
+def test_update_incident(caplog, requests_mock, test_statuspage_client):
+    page_id = test_statuspage_client.page_id
+    incident_id = "incident-id"
+    expected_url = (
+        f"{test_statuspage_client.STATUS_PAGE_BASE_URL}"
+        f"/{page_id}/incidents/{incident_id}"
+    )
+
+    payload = {
+        "incident": {
+            "name": "Test Incident",
+            "status": "investigating",
+            "body": "Incident Description",
+            "component_ids": ["component-id"],
+            "components": {"component-id": "major_outage"},
+        }
+    }
+
+    requests_mock.patch(expected_url, json=TEST_INCIDENT_1)
+    with caplog.at_level(logging.DEBUG):
+        incident: object = test_statuspage_client.update_incident(incident_id, payload)
+
+    assert requests_mock.called
+    assert (
+        requests_mock.last_request.headers[test_statuspage_client.AUTH_HEADER]
+        == f"OAuth {test_statuspage_client.api_key}"
+    )
+    assert incident.name == TEST_INCIDENT_1["name"]
+    assert incident.components[0].name == TEST_INCIDENT_1["components"][0]["name"]
+    assert incident.components[1].name == TEST_INCIDENT_1["components"][1]["name"]
+
+
+def test_update_incident_exception(caplog, requests_mock, test_statuspage_client):
+    page_id = test_statuspage_client.page_id
+    incident_id = "incident-id"
+    expected_url = (
+        f"{test_statuspage_client.STATUS_PAGE_BASE_URL}"
+        f"/{page_id}/incidents/{incident_id}"
+    )
+    payload = {
+        "incident": {
+            "name": "Test Incident",
+            "status": "investigating",
+            "body": "Incident Description",
+            "component_ids": ["component-id"],
+            "components": {"component-id": "major_outage"},
+        }
+    }
+    requests_mock.post(expected_url, exc=requests.exceptions.ConnectTimeout)
+    with caplog.at_level(logging.ERROR):
+        incidents: object = test_statuspage_client.update_incident(incident_id, payload)
+
+    assert requests_mock.called
+    assert (
+        requests_mock.last_request.headers[test_statuspage_client.AUTH_HEADER]
+        == f"OAuth {test_statuspage_client.api_key}"
+    )
+    assert incidents is None
+    assert caplog.records[0].message.startswith(
+        test_statuspage_client.CLIENT_ERROR_MESSAGE
+    )
