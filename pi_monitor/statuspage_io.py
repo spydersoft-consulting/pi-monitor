@@ -87,6 +87,9 @@ class StatusPageOperator:
         [StatusPageSettings][pi_monitor.StatusPageSettings].
 
         """
+        if status_page_config is None:
+            raise ValueError("No configuration provided")
+
         self.config = status_page_config
         self.client = StatusPageClient(self.config.api_key, self.config.page_id)
 
@@ -131,17 +134,12 @@ class StatusPageOperator:
         else:
             component_status = "major_outage"
 
-        if component_status not in self.client.component_status_list:
-            raise ValueError(
-                str.format(
-                    "Invalid status '{0}'.  Valid values are {1}",
-                    component_status,
-                    self.client.component_status_list,
-                )
-            )
-
         result = StatusResult()
         component = self.client.get_component(component_id)
+        if component is None:
+            logger.warning("Failed to retrieve component %s", component_id)
+            return result
+
         if (
             component.status != component_status
             and component.status != "under_maintenance"
@@ -158,20 +156,13 @@ class StatusPageOperator:
         return result
 
     def _update_component_status(self, component_id, new_component_status):
-        if new_component_status not in self.client.component_status_list:
-            raise ValueError(
-                str.format(
-                    "Invalid status '{0}'.  Valid values are {1}",
-                    new_component_status,
-                    self.client.component_status_list,
-                )
-            )
-
         logger.debug(
             "Setting component status to %s: %s", new_component_status, component_id
         )
         payload = {"component": {"status": new_component_status}}
-        self.client.update_component(component_id, payload)
+        component = self.client.update_component(component_id, payload)
+        if component is None:
+            logger.warning("Failed to update component %s", component_id)
 
     def _filter_set(self, incidents, component_id):
         def iterator_func(incident):
@@ -184,6 +175,8 @@ class StatusPageOperator:
 
     def _get_associated_incident(self, component_id):
         result = self.client.get_unresolved_incidents()
+        if result is None:
+            return []
         return list(self._filter_set(result, component_id))
 
     def _process_incident_on_status_change(

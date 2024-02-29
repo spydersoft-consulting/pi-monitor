@@ -21,6 +21,10 @@ class StatusPageClient:
                                         scheduledStatusPage.io
     """
 
+    AUTH_HEADER = "Authorization"
+    STATUS_PAGE_BASE_URL = "https://api.statuspage.io/v1/pages"
+    CLIENT_ERROR_MESSAGE = "Request failed exception:"
+
     component_status_list: List[str] = [
         "operational",
         "under_maintenance",
@@ -56,7 +60,7 @@ class StatusPageClient:
 
         """
         return {
-            "Authorization": str.format("OAuth {0}", self.api_key),
+            f"{self.AUTH_HEADER}": f"OAuth {self.api_key}",
             "Content-Type": "application/json",
         }
 
@@ -74,18 +78,20 @@ class StatusPageClient:
                 [docs](https://developer.statuspage.io/#operation/getPagesPageIdComponentsComponentId).
 
         """
-        component_url = str.format(
-            "https://api.statuspage.io/v1/pages/{0}/components/{1}",
-            self.page_id,
-            component_id,
+        component_url = (
+            f"{self.STATUS_PAGE_BASE_URL}/{self.page_id}/components/{component_id}"
         )
-        logger.info("Retrieving component from StatusPage: %s", component_url)
+        logger.debug("Retrieving component from StatusPage: %s", component_url)
         try:
             component = requests.get(component_url, headers=self._get_headers())
-            logger.info("Component Response: %s", component.text)
+            logger.debug("Component Response: %s", component.text)
+
+            if component.status_code == 404:
+                logger.warning("Component %s not found", component_id)
+
             return component.json(object_hook=lambda d: SimpleNamespace(**d))
         except Exception as e:
-            logger.error("Request failed exception %s", e)
+            self._handle_exception(e)
 
     def update_component(self, component_id: str, payload: object) -> object:
         """Update Component Information
@@ -105,16 +111,17 @@ class StatusPageClient:
                 [docs](https://developer.statuspage.io/#operation/putPagesPageIdComponentsComponentId).
 
         """
-        component_url = str.format(
-            "https://api.statuspage.io/v1/pages/{0}/components/{1}",
-            self.page_id,
-            component_id,
+        component_url = (
+            f"{self.STATUS_PAGE_BASE_URL}/{self.page_id}/components/{component_id}"
         )
         logger.debug("Updating component %s: %s", component_id, payload)
-        r = requests.put(
-            component_url, headers=self._get_headers(), data=json.dumps(payload)
-        )
-        return r.json(object_hook=lambda d: SimpleNamespace(**d))
+        try:
+            r = requests.put(
+                component_url, headers=self._get_headers(), data=json.dumps(payload)
+            )
+            return r.json(object_hook=lambda d: SimpleNamespace(**d))
+        except Exception as e:
+            self._handle_exception(e)
 
     def get_unresolved_incidents(self) -> object:
         """Retrieve Unresolved Incidents
@@ -128,16 +135,19 @@ class StatusPageClient:
 
         """
         logger.info("Retrieving unresolved incidents")
-        unresolved_incidents_url = str.format(
-            "https://api.statuspage.io/v1/pages/{0}/incidents/unresolved", self.page_id
+        unresolved_incidents_url = (
+            f"{self.STATUS_PAGE_BASE_URL}/{self.page_id}/incidents/unresolved"
         )
-        unresolved_incidents_response = requests.get(
-            unresolved_incidents_url, headers=self._get_headers()
-        )
-        result = unresolved_incidents_response.json(
-            object_hook=lambda d: SimpleNamespace(**d)
-        )
-        return result
+        try:
+            unresolved_incidents_response = requests.get(
+                unresolved_incidents_url, headers=self._get_headers()
+            )
+            result = unresolved_incidents_response.json(
+                object_hook=lambda d: SimpleNamespace(**d)
+            )
+            return result
+        except Exception as e:
+            self._handle_exception(e)
 
     def create_incident(self, payload: object) -> object:
         """Create Incident
@@ -156,16 +166,17 @@ class StatusPageClient:
                 [docs](https://developer.statuspage.io/#operation/postPagesPageIdIncidents).
 
         """
-        incident_url = str.format(
-            "https://api.statuspage.io/v1/pages/{0}/incidents", self.page_id
-        )
+        incident_url = f"{self.STATUS_PAGE_BASE_URL}/{self.page_id}/incidents"
         logger.info("Creating incident: %s", incident_url)
-        r = requests.post(
-            incident_url, headers=self._get_headers(), data=json.dumps(payload)
-        )
-        result_object = r.json(object_hook=lambda d: SimpleNamespace(**d))
-        logger.debug("Create Incident Response: %s", result_object)
-        return result_object
+        try:
+            r = requests.post(
+                incident_url, headers=self._get_headers(), data=json.dumps(payload)
+            )
+            result_object = r.json(object_hook=lambda d: SimpleNamespace(**d))
+            logger.debug("Create Incident Response: %s", result_object)
+            return result_object
+        except Exception as e:
+            self._handle_exception(e)
 
     def update_incident(self, incident_id: str, payload: object) -> object:
         """Update Incident Information
@@ -185,15 +196,19 @@ class StatusPageClient:
                 [docs](https://developer.statuspage.io/#operation/patchPagesPageIdIncidentsIncidentId).
 
         """
-        incident_url = str.format(
-            "https://api.statuspage.io/v1/pages/{0}/incidents/{1}",
-            self.page_id,
-            incident_id,
+        incident_url = (
+            f"{self.STATUS_PAGE_BASE_URL}/{self.page_id}/incidents/{incident_id}"
         )
         logger.info("Updating incident %s: %s", incident_url, incident_id)
-        r = requests.patch(
-            incident_url, headers=self._get_headers(), data=json.dumps(payload)
-        )
-        result_object = r.json(object_hook=lambda d: SimpleNamespace(**d))
-        logger.debug("Update Incident Response: %s", result_object)
-        return result_object
+        try:
+            r = requests.patch(
+                incident_url, headers=self._get_headers(), data=json.dumps(payload)
+            )
+            result_object = r.json(object_hook=lambda d: SimpleNamespace(**d))
+            logger.debug("Update Incident Response: %s", result_object)
+            return result_object
+        except Exception as e:
+            self._handle_exception(e)
+
+    def _handle_exception(self, e: Exception):
+        logger.error("%s %s", self.CLIENT_ERROR_MESSAGE, e)

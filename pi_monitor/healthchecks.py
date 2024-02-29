@@ -1,6 +1,5 @@
 import requests
 import logging
-from types import SimpleNamespace
 from .configuration import HealthCheckSettings
 from .enums import OpLevel
 from .statuspage_io import StatusPageOperator, StatusResult, Incident
@@ -105,6 +104,7 @@ class HealthCheckExecutor:
             logger.warning(http_result.message)
             send_notification = True
 
+        notification_text = http_result.message
         if check_settings.status_page and check_settings.status_page.component_id != "":
             status_result = self._update_status_page(check_settings, op_level)
             send_notification = (
@@ -113,7 +113,11 @@ class HealthCheckExecutor:
             )
             notification_text = status_result.incident_result.incident.description
 
-        if send_notification:
+        if (
+            send_notification
+            and notification_text is not None
+            and notification_text != ""
+        ):
             logger.info("Sending notification: %s", notification_text)
             self.notifier.notify(check_settings.name, notification_text)
 
@@ -133,7 +137,7 @@ class HealthCheckExecutor:
             return result
 
         try:
-            logger.info("Requesting %s", url)
+            logger.debug("Requesting %s", url)
             r = requests.get(url)
             result = self._process_response(r)
         except Exception as e:
@@ -142,9 +146,7 @@ class HealthCheckExecutor:
 
         return result
 
-    def _process_response(
-        self, response: requests.Response, parse_json: bool = False
-    ) -> HttpGetResult:
+    def _process_response(self, response: requests.Response) -> HttpGetResult:
         """Process the HTTP Requests response
 
         Convert the provided Response object from the requests module into an
@@ -163,18 +165,10 @@ class HealthCheckExecutor:
                 response.status_code,
                 response.text,
             )
-            result.message = str.format("{0} {1}", response.status_code, response.text)
+            result.message = f"{response.status_code} {response.text}"
             return result
 
         result.raw_response = response.text
-        if parse_json:
-            try:
-                result.response = response.json(
-                    object_hook=lambda d: SimpleNamespace(**d)
-                )
-            except Exception as e:
-                logger.exception("Failed to parse response as JSON", e)
-                result.response = {}
         return result
 
     def _update_status_page(
