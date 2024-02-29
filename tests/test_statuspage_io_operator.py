@@ -7,7 +7,6 @@ from pi_monitor import (
     StatusPageClient,
     Incident,
 )
-from types import SimpleNamespace
 from unittest.mock import patch
 from .statuspage_io_operator_objects import TestObjects
 
