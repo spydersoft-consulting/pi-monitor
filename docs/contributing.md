@@ -18,7 +18,7 @@ source venv/bin/activate
 [Installation Guide](https://conda.io/projects/conda/en/latest/user-guide/install/download.html)
 
 ```bash
-  conda create --name pi_monitor python=3.7 --yes
+  conda create --name pi_monitor python=3.9 --yes
   conda activate pi_monitor
 ```
 

@@ -17,7 +17,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
       with:
@@ -36,10 +36,10 @@ jobs:
       if: ${{ github.event.action == 'published' && !github.event.release.draft}}
       run:  TAG=$(git describe --tags); if github.event.release.prerelease; then RELEASE=".pre"; else  RELEASE="";  fi; echo "VERSION=${TAG}${RELEASE}" >> $GITHUB_ENV
     - uses: actions/checkout@v4
-    - name: Set up Python 3.7
+    - name: Set up Python 3.9
       uses: actions/setup-python@v5
       with:
-        python-version: 3.7
+        python-version: 3.9
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -52,14 +52,14 @@ jobs:
         #flake8 . --count --exit-zero --statistics
     - name: Execute Tests
       run: |
-        tox run -e py37
+        tox run -e py39
     - name: Build
       run: |
         echo "${{ env.VERSION }}" > version.txt
         python -m pip install wheel
         python setup.py bdist_wheel
     - name: SonarCloud Scan
-      uses: sonarsource/sonarcloud-github-action@master
+      uses: sonarsource/sonarqube-scan-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
