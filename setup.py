@@ -23,7 +23,10 @@ setup(
     url="https://github.com/spydersoft-consulting/md_to_conf",
     classifiers=["Programming Language :: Python :: 3 :: Only"],
     py_modules=["pi_monitor"],
-    install_requires=["pyyaml", "requests", "coloredlogs", "sendgrid"],
+    install_requires=["pyyaml", "requests", "coloredlogs"],
+    extras_require={
+        "sendgrid": ["sendgrid"],
+    },
     entry_points="""
     [console_scripts]
     pi-monitor=pi_monitor:main

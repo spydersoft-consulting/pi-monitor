@@ -17,6 +17,36 @@ pip install spydersoft-pi-monitor
 pip3 install spydersoft-pi-monitor
 ```
 
+### Raspberry Pi install notes
+
+If you want SendGrid email support the package requires a modern `cryptography` which may need to be built from source on Raspberry Pi. The steps below will install required system build tools and a Rust toolchain used by `maturin` (the build front-end) so the wheel can be built if a prebuilt wheel is not available.
+
+1. Install system build dependencies and Rust:
+
+```bash
+sudo apt update
+sudo apt install -y build-essential libssl-dev libffi-dev python3-dev pkg-config
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+source "$HOME/.cargo/env"
+rustup update stable
+rustup default stable
+```
+
+2. Install `maturin` and then the package with the `sendgrid` extra:
+
+```bash
+python3 -m pip install --upgrade pip setuptools wheel
+python3 -m pip install --user --upgrade maturin
+export PATH="$HOME/.local/bin:$PATH"
+python3 -m pip install spydersoft-pi-monitor[sendgrid]
+```
+
+If you do not need SendGrid you can avoid this entirely and install without the extra:
+
+```bash
+python3 -m pip install spydersoft-pi-monitor
+```
+
 ## Usage
 
 ### Basic
